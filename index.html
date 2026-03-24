@@ -930,6 +930,74 @@ footer {
   </div>
 </section>
 
+<!-- LIVE COACH SPOTLIGHT -->
+<section class="live-section">
+  <div class="live-inner">
+    <div class="live-text">
+      <div class="live-badge"><div class="live-badge-dot"></div>PREPT AI Live — Real-Time Coach</div>
+      <h2 class="live-title">Your AI coach.<br><span class="hl">Live. During the call.</span></h2>
+      <p class="live-sub">While you're on Zoom, Teams, or any video call — PREPT AI listens to every question your interviewer asks and feeds you a confident, personalized answer in under 3 seconds. On your phone or second screen. Invisible to everyone else.</p>
+      <div class="live-steps">
+        <div class="live-step"><div class="ls-num">1</div><div class="ls-text"><strong>Open PREPT AI on your phone or second screen</strong> before your interview starts. Add the company name and role — takes 30 seconds.</div></div>
+        <div class="live-step"><div class="ls-num">2</div><div class="ls-text"><strong>Tap the mic when your interviewer speaks.</strong> PREPT AI listens, transcribes the question, and starts generating your answer immediately.</div></div>
+        <div class="live-step"><div class="ls-num">3</div><div class="ls-text"><strong>Your coached answer appears in under 3 seconds.</strong> STAR-structured for behavioral questions. Delivery tips included. Speak it naturally — it sounds like you.</div></div>
+        <div class="live-step"><div class="ls-num">4</div><div class="ls-text"><strong>After the call, get your full debrief.</strong> Performance score, strengths, improvements, and a personalized thank-you email ready to send.</div></div>
+      </div>
+      <a href="/login.html" class="live-cta">Try PREPT AI Live free →</a>
+    </div>
+    <div class="live-demo">
+      <div class="demo-float-1">⚡ Answer in 2.4 seconds</div>
+      <div class="demo-float-2">✓ Works on Zoom · Teams · Meet</div>
+      <div class="demo-screen">
+        <div class="demo-topbar">
+          <div class="demo-dot" style="background:#ff5f57"></div>
+          <div class="demo-dot" style="background:#ffbd2e"></div>
+          <div class="demo-dot" style="background:#28c840"></div>
+          <div class="demo-title">PREPT AI Live</div>
+          <div class="demo-status"><div class="demo-status-dot"></div>Listening</div>
+        </div>
+        <div class="demo-question">
+          <div class="demo-question-label">🎙 Interviewer asked</div>
+          Tell me about a time you had to manage a difficult situation under pressure. What did you do?
+        </div>
+        <div class="demo-thinking">
+          <div class="think-dots"><div class="think-dot"></div><div class="think-dot"></div><div class="think-dot"></div></div>
+          <span style="font-size:12px;color:#4d4a66">Coaching your answer...</span>
+        </div>
+        <div class="demo-answer">
+          <div class="demo-answer-label">💬 Suggested answer</div>
+          <div class="demo-answer-text" id="demoText"></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div class="demo-timer">⏱ ~18 seconds to speak</div>
+          <div style="display:flex;gap:6px">
+            <div style="padding:4px 10px;border-radius:8px;background:rgba(255,255,255,0.05);font-size:11px;font-weight:600;color:#8c89a6">⚡ Shorter</div>
+            <div style="padding:4px 10px;border-radius:8px;background:rgba(255,255,255,0.05);font-size:11px;font-weight:600;color:#8c89a6">📋 Bullets</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  const text = "Situation: In my previous role, a critical deadline moved up by two weeks with no reduction in scope. Task: As the point of contact I had to keep the team focused and the client calm. Action: I called an immediate standup, broke the project into daily milestones, and set up a shared tracker everyone could see. Result: We delivered on the new deadline and the client commented on how smooth the process felt from their end.";
+  const el = document.getElementById('demoText');
+  if(!el) return;
+  let i = 0;
+  function type(){
+    el.style.borderRight = '2px solid #a498ff';
+    const iv = setInterval(()=>{
+      if(i < text.length){ el.textContent = text.slice(0, ++i); }
+      else { el.style.borderRight = 'none'; clearInterval(iv); setTimeout(()=>{ i=0; el.textContent=''; type(); }, 4000); }
+    }, 22);
+  }
+  type();
+})();
+</script>
+
+
+
 <!-- PROBLEM -->
 <section id="problem" class="problem-section">
   <div class="section-inner reveal">
@@ -1074,73 +1142,6 @@ footer {
     </div>
   </div>
 </section>
-
-
-<!-- LIVE COACH SPOTLIGHT -->
-<section class="live-section">
-  <div class="live-inner">
-    <div class="live-text">
-      <div class="live-badge"><div class="live-badge-dot"></div>PREPT AI Live — Real-Time Coach</div>
-      <h2 class="live-title">Your AI coach.<br><span class="hl">Live. During the call.</span></h2>
-      <p class="live-sub">While you're on Zoom, Teams, or any video call — PREPT AI listens to every question your interviewer asks and feeds you a confident, personalized answer in under 3 seconds. On your phone or second screen. Invisible to everyone else.</p>
-      <div class="live-steps">
-        <div class="live-step"><div class="ls-num">1</div><div class="ls-text"><strong>Open PREPT AI on your phone or second screen</strong> before your interview starts. Add the company name and role — takes 30 seconds.</div></div>
-        <div class="live-step"><div class="ls-num">2</div><div class="ls-text"><strong>Tap the mic when your interviewer speaks.</strong> PREPT AI listens, transcribes the question, and starts generating your answer immediately.</div></div>
-        <div class="live-step"><div class="ls-num">3</div><div class="ls-text"><strong>Your coached answer appears in under 3 seconds.</strong> STAR-structured for behavioral questions. Delivery tips included. Speak it naturally — it sounds like you.</div></div>
-        <div class="live-step"><div class="ls-num">4</div><div class="ls-text"><strong>After the call, get your full debrief.</strong> Performance score, strengths, improvements, and a personalized thank-you email ready to send.</div></div>
-      </div>
-      <a href="/login.html" class="live-cta">Try PREPT AI Live free →</a>
-    </div>
-    <div class="live-demo">
-      <div class="demo-float-1">⚡ Answer in 2.4 seconds</div>
-      <div class="demo-float-2">✓ Works on Zoom · Teams · Meet</div>
-      <div class="demo-screen">
-        <div class="demo-topbar">
-          <div class="demo-dot" style="background:#ff5f57"></div>
-          <div class="demo-dot" style="background:#ffbd2e"></div>
-          <div class="demo-dot" style="background:#28c840"></div>
-          <div class="demo-title">PREPT AI Live</div>
-          <div class="demo-status"><div class="demo-status-dot"></div>Listening</div>
-        </div>
-        <div class="demo-question">
-          <div class="demo-question-label">🎙 Interviewer asked</div>
-          Tell me about a time you had to manage a difficult situation under pressure. What did you do?
-        </div>
-        <div class="demo-thinking">
-          <div class="think-dots"><div class="think-dot"></div><div class="think-dot"></div><div class="think-dot"></div></div>
-          <span style="font-size:12px;color:#4d4a66">Coaching your answer...</span>
-        </div>
-        <div class="demo-answer">
-          <div class="demo-answer-label">💬 Suggested answer</div>
-          <div class="demo-answer-text" id="demoText"></div>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-          <div class="demo-timer">⏱ ~18 seconds to speak</div>
-          <div style="display:flex;gap:6px">
-            <div style="padding:4px 10px;border-radius:8px;background:rgba(255,255,255,0.05);font-size:11px;font-weight:600;color:#8c89a6">⚡ Shorter</div>
-            <div style="padding:4px 10px;border-radius:8px;background:rgba(255,255,255,0.05);font-size:11px;font-weight:600;color:#8c89a6">📋 Bullets</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<script>
-(function(){
-  const text = "Situation: In my previous role, a critical deadline moved up by two weeks with no reduction in scope. Task: As the point of contact I had to keep the team focused and the client calm. Action: I called an immediate standup, broke the project into daily milestones, and set up a shared tracker everyone could see. Result: We delivered on the new deadline and the client commented on how smooth the process felt from their end.";
-  const el = document.getElementById('demoText');
-  if(!el) return;
-  let i = 0;
-  function type(){
-    el.style.borderRight = '2px solid #a498ff';
-    const iv = setInterval(()=>{
-      if(i < text.length){ el.textContent = text.slice(0, ++i); }
-      else { el.style.borderRight = 'none'; clearInterval(iv); setTimeout(()=>{ i=0; el.textContent=''; type(); }, 4000); }
-    }, 22);
-  }
-  type();
-})();
-</script>
 
 
 <!-- COMPARISON -->
