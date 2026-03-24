@@ -7,12 +7,813 @@
 <title>PREPT AI — Get the Job. Keep the Job.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <style>
+<style>
+:root {
+  --bg: #06060d;
+  --s1: #0a0a14;
+  --s2: #0f0f1c;
+  --s3: #161625;
+  --s4: #1d1d2e;
+  --b1: rgba(255,255,255,0.05);
+  --b2: rgba(255,255,255,0.09);
+  --b3: rgba(255,255,255,0.14);
+  --gold: #c8a84b;
+  --gold2: #e6c668;
+  --gold3: #f5e0a0;
+  --gd: rgba(200,168,75,0.08);
+  --gd2: rgba(200,168,75,0.15);
+  --vi: #7b6df4;
+  --vi2: #a498ff;
+  --vd: rgba(123,109,244,0.08);
+  --cy: #38d9c0;
+  --cyd: rgba(56,217,192,0.08);
+  --gr: #45de7a;
+  --re: #ef5f5f;
+  --am: #f5a52a;
+  --tx: #edeaf7;
+  --tx2: #8c89a6;
+  --tx3: #4d4a66;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--tx);
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── NOISE TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ── AMBIENT GLOWS ── */
+.glow-1 {
+  position: fixed; top: -20%; left: 20%;
+  width: 700px; height: 600px;
+  background: radial-gradient(ellipse, rgba(123,109,244,0.06) 0%, transparent 65%);
+  pointer-events: none; z-index: 0;
+}
+.glow-2 {
+  position: fixed; bottom: -10%; right: 10%;
+  width: 500px; height: 400px;
+  background: radial-gradient(ellipse, rgba(200,168,75,0.05) 0%, transparent 65%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── NAVBAR ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center;
+  padding: 0 48px; height: 62px;
+  border-bottom: 1px solid var(--b1);
+  background: rgba(6,6,13,0.88);
+  backdrop-filter: blur(28px);
+  transition: all 0.3s;
+}
+nav.scrolled { background: rgba(6,6,13,0.97); border-color: var(--b2); }
+.nav-logo {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 22px; font-weight: 800;
+  color: var(--gold2); letter-spacing: -0.5px;
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-logo-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--gold2);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+.nav-links {
+  display: flex; align-items: center; gap: 32px;
+  margin: 0 auto;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--tx2); text-decoration: none;
+  font-size: 14px; font-weight: 500;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--tx); }
+.nav-cta {
+  display: flex; align-items: center; gap: 10px;
+}
+.btn-ghost {
+  padding: 8px 20px;
+  border: 1px solid var(--b2);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--tx2);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-ghost:hover { border-color: var(--b3); color: var(--tx); }
+.btn-primary {
+  padding: 9px 22px;
+  border: none;
+  border-radius: 8px;
+  background: var(--gold);
+  color: #06060d;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.2s;
+  letter-spacing: 0.2px;
+}
+.btn-primary:hover { background: var(--gold2); transform: translateY(-1px); }
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  background: var(--vd);
+  border: 1px solid rgba(123,109,244,0.2);
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--vi2);
+  margin-bottom: 28px;
+  animation: fadeup 0.6s ease both;
+}
+.eyebrow-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--vi2);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+.hero-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(42px, 7vw, 86px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -2.5px;
+  color: var(--tx);
+  margin-bottom: 20px;
+  animation: fadeup 0.6s 0.1s ease both;
+  max-width: 900px;
+}
+.hero-title .line2 {
+  display: block;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 50%, var(--gold3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--tx2);
+  line-height: 1.7;
+  max-width: 580px;
+  margin: 0 auto 36px;
+  animation: fadeup 0.6s 0.2s ease both;
+}
+
+.hero-actions {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 60px;
+  flex-wrap: wrap; justify-content: center;
+  animation: fadeup 0.6s 0.3s ease both;
+}
+
+.btn-hero {
+  padding: 16px 36px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+  color: #06060d;
+  border: none; border-radius: 10px;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 16px; font-weight: 700;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 4px 32px rgba(200,168,75,0.22);
+  letter-spacing: 0.3px;
+}
+.btn-hero:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(200,168,75,0.35); }
+
+.btn-hero-ghost {
+  padding: 16px 28px;
+  border: 1px solid var(--b2);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--tx2);
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px; font-weight: 500;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-hero-ghost:hover { border-color: var(--b3); color: var(--tx); }
+
+.hero-trust {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--tx3);
+  animation: fadeup 0.6s 0.35s ease both;
+}
+.trust-dot { color: var(--gr); font-size: 10px; }
+
+/* Hero stats ticker */
+.hero-stats {
+  display: flex; align-items: center; gap: 0;
+  border: 1px solid var(--b1);
+  border-radius: 14px;
+  background: var(--s2);
+  overflow: hidden;
+  margin-bottom: 48px;
+  animation: fadeup 0.6s 0.25s ease both;
+}
+.hstat {
+  padding: 18px 32px;
+  text-align: center;
+  border-right: 1px solid var(--b1);
+}
+.hstat:last-child { border-right: none; }
+.hstat-n {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 28px; font-weight: 800;
+  color: var(--gold2); line-height: 1;
+}
+.hstat-l {
+  font-size: 12px; color: var(--tx3);
+  margin-top: 4px;
+}
+
+/* Product mockup preview */
+.hero-preview {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 900px;
+  margin: 0 auto;
+  animation: fadeup 0.8s 0.4s ease both;
+}
+.preview-frame {
+  background: var(--s2);
+  border: 1px solid var(--b2);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px var(--b1);
+}
+.preview-topbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--b1);
+  background: var(--s3);
+}
+.ptb-dot { width: 10px; height: 10px; border-radius: 50%; }
+.ptb-red { background: #ff5f57; }
+.ptb-yellow { background: #ffbd2e; }
+.ptb-green { background: #28c840; }
+.ptb-url {
+  flex: 1; background: var(--s4); border-radius: 6px;
+  padding: 5px 12px; margin: 0 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--tx3);
+  text-align: center;
+}
+.preview-content {
+  display: grid; grid-template-columns: 240px 1fr;
+  min-height: 340px;
+}
+.preview-left {
+  border-right: 1px solid var(--b1);
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.pl-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--tx3); margin-bottom: 4px; }
+.pl-score {
+  background: var(--s3); border: 1px solid var(--b1);
+  border-radius: 8px; padding: 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.pl-score-n {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 32px; font-weight: 800;
+  color: var(--am); line-height: 1;
+}
+.pl-score-info { flex: 1; }
+.pl-score-grade { font-size: 13px; font-weight: 700; color: var(--am); }
+.pl-score-label { font-size: 11px; color: var(--tx3); }
+.pl-proj {
+  background: var(--grd); border: 1px solid rgba(69,222,122,0.15);
+  border-radius: 6px; padding: 8px 12px;
+  font-size: 12px; color: var(--gr);
+  display: flex; align-items: center; gap: 6px;
+}
+.pl-kw-miss { display: flex; flex-wrap: wrap; gap: 5px; }
+.kw-chip {
+  padding: 3px 8px; border-radius: 12px;
+  font-size: 11px; font-weight: 500;
+}
+.kw-red { background: var(--red); color: var(--re); border: 1px solid rgba(239,95,95,0.15); }
+.kw-amber { background: var(--amd); color: var(--am); border: 1px solid rgba(245,165,42,0.15); }
+.preview-right { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.pr-tabs { display: flex; gap: 4px; }
+.pr-tab {
+  padding: 5px 12px; border-radius: 6px;
+  font-size: 11px; font-weight: 600;
+  color: var(--tx3); cursor: default;
+}
+.pr-tab.on { background: var(--gd); color: var(--gold2); }
+.pr-block { background: var(--s3); border: 1px solid var(--b1); border-radius: 8px; padding: 12px 14px; }
+.pb-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--tx3); margin-bottom: 6px; }
+.pb-text { font-size: 12px; color: var(--tx); line-height: 1.6; }
+.pb-text .hi { background: rgba(200,168,75,0.15); color: var(--gold3); border-radius: 2px; padding: 0 2px; }
+.pr-metrics { display: flex; gap: 8px; }
+.prm { flex: 1; background: var(--s3); border: 1px solid var(--b1); border-radius: 8px; padding: 10px 12px; text-align: center; }
+.prm-n { font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px; font-weight: 700; color: var(--tx); }
+.prm-l { font-size: 10px; color: var(--tx3); margin-top: 2px; }
+
+@keyframes fadeup {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SECTION BASE ── */
+section {
+  position: relative; z-index: 1;
+  padding: 100px 24px;
+}
+.section-inner { max-width: 1100px; margin: 0 auto; }
+.section-eyebrow {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--gold); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-eyebrow::before {
+  content: ''; display: block;
+  width: 24px; height: 1px;
+  background: var(--gold);
+}
+.section-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  color: var(--tx);
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+.section-sub {
+  font-size: 17px; color: var(--tx2);
+  line-height: 1.7; max-width: 540px;
+}
+
+/* ── PROBLEM SECTION ── */
+.problem-section { background: var(--s1); }
+.problem-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--b1);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 56px;
+}
+.problem-card {
+  background: var(--s2);
+  padding: 36px 32px;
+}
+.pc-number {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 52px; font-weight: 900;
+  line-height: 1; margin-bottom: 12px;
+}
+.pc-label { font-size: 15px; font-weight: 600; color: var(--tx); margin-bottom: 8px; }
+.pc-desc { font-size: 14px; color: var(--tx2); line-height: 1.6; }
+
+/* ── HOW IT WORKS ── */
+.how-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 60px; align-items: center;
+  margin-top: 56px;
+}
+.how-steps { display: flex; flex-direction: column; gap: 0; }
+.how-step {
+  display: flex; gap: 20px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--b1);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.how-step:last-child { border-bottom: none; }
+.how-step:hover .hs-content { opacity: 1; }
+.hs-num {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--b2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; color: var(--tx3);
+  flex-shrink: 0; margin-top: 2px;
+  transition: all 0.2s;
+}
+.how-step.active .hs-num {
+  background: var(--gold); color: #06060d;
+  border-color: var(--gold); font-weight: 700;
+}
+.hs-title { font-size: 16px; font-weight: 700; color: var(--tx); margin-bottom: 6px; }
+.hs-desc { font-size: 14px; color: var(--tx2); line-height: 1.6; }
+.how-visual {
+  background: var(--s2); border: 1px solid var(--b2);
+  border-radius: 16px; padding: 32px;
+  min-height: 360px;
+  display: flex; flex-direction: column; gap: 16px;
+  position: sticky; top: 100px;
+}
+.hv-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--tx3); }
+.hv-score-ring {
+  display: flex; align-items: center; gap: 20px;
+  padding: 20px; background: var(--s3);
+  border-radius: 12px; border: 1px solid var(--b1);
+}
+.ring-wrap { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
+.ring-num {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px; font-weight: 800;
+}
+.ring-info-title { font-size: 15px; font-weight: 700; color: var(--tx); }
+.ring-info-sub { font-size: 12px; color: var(--tx2); margin-top: 3px; }
+.hv-kw-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.hv-issue {
+  background: var(--s3); border: 1px solid var(--b1);
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 12px; color: var(--tx2); line-height: 1.5;
+}
+.hv-issue .fix { color: var(--cy); margin-top: 4px; font-size: 11px; }
+
+/* ── FEATURES ── */
+.features-section { background: var(--s1); }
+.features-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--b1);
+  border-radius: 16px; overflow: hidden;
+  margin-top: 56px;
+}
+.feat-card {
+  background: var(--s2);
+  padding: 32px 28px;
+  transition: background 0.2s;
+}
+.feat-card:hover { background: var(--s3); }
+.feat-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 16px;
+}
+.fi-gold { background: var(--gd); border: 1px solid rgba(200,168,75,0.18); }
+.fi-vi { background: var(--vd); border: 1px solid rgba(123,109,244,0.18); }
+.fi-cy { background: var(--cyd); border: 1px solid rgba(56,217,192,0.18); }
+.feat-title { font-size: 16px; font-weight: 700; color: var(--tx); margin-bottom: 8px; }
+.feat-desc { font-size: 14px; color: var(--tx2); line-height: 1.6; }
+.feat-tag {
+  display: inline-block; margin-top: 12px;
+  padding: 3px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 600;
+}
+.tag-new { background: var(--vd); color: var(--vi2); border: 1px solid rgba(123,109,244,0.2); }
+.tag-pro { background: var(--gd); color: var(--gold2); border: 1px solid rgba(200,168,75,0.2); }
+
+/* ── COMPARISON ── */
+.compare-table {
+  width: 100%; border-collapse: collapse;
+  margin-top: 56px;
+  border-radius: 16px; overflow: hidden;
+}
+.compare-table th {
+  padding: 16px 20px;
+  font-size: 13px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  border-bottom: 1px solid var(--b1);
+  background: var(--s2);
+}
+.compare-table th:first-child { text-align: left; color: var(--tx3); }
+.compare-table th.us { color: var(--gold2); background: var(--s3); }
+.compare-table td {
+  padding: 14px 20px;
+  font-size: 14px; color: var(--tx2);
+  border-bottom: 1px solid var(--b1);
+  background: var(--s2); text-align: center;
+}
+.compare-table td:first-child { text-align: left; color: var(--tx); }
+.compare-table td.us { background: rgba(200,168,75,0.04); }
+.compare-table tr:last-child td { border-bottom: none; }
+.chk-yes { color: var(--gr); font-size: 16px; }
+.chk-no { color: var(--tx4); font-size: 16px; }
+.chk-part { color: var(--am); font-size: 12px; font-weight: 600; }
+
+/* ── PRICING ── */
+.pricing-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px; margin-top: 56px;
+}
+.price-card {
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  border-radius: 16px;
+  padding: 28px 24px;
+  display: flex; flex-direction: column; gap: 16px;
+  position: relative; overflow: hidden;
+  transition: transform 0.2s;
+}
+.price-card:hover { transform: translateY(-3px); }
+.price-card.featured {
+  border-color: var(--gold);
+  background: linear-gradient(160deg, var(--s3) 0%, rgba(200,168,75,0.05) 100%);
+}
+.price-card.featured::before {
+  content: 'MOST POPULAR';
+  position: absolute; top: 16px; right: -28px;
+  background: var(--gold);
+  color: #06060d;
+  font-size: 9px; font-weight: 800;
+  padding: 4px 40px;
+  transform: rotate(45deg);
+  letter-spacing: 1px;
+}
+.price-tier {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--tx3);
+}
+.price-amount {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 44px; font-weight: 900;
+  line-height: 1; color: var(--tx);
+}
+.price-amount span { font-size: 16px; font-weight: 400; color: var(--tx3); }
+.price-desc { font-size: 13px; color: var(--tx2); line-height: 1.6; }
+.price-divider { height: 1px; background: var(--b1); }
+.price-features { display: flex; flex-direction: column; gap: 9px; }
+.pf {
+  display: flex; gap: 10px;
+  font-size: 13px; color: var(--tx2);
+  align-items: flex-start;
+}
+.pf-ico { flex-shrink: 0; margin-top: 1px; }
+.pf-ico.yes { color: var(--gr); }
+.pf-ico.no { color: var(--tx4); }
+.price-cta {
+  margin-top: auto;
+  padding: 13px;
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; text-decoration: none;
+  text-align: center;
+  transition: all 0.2s;
+  display: block;
+}
+.cta-free {
+  background: var(--s4); color: var(--tx2);
+  border: 1px solid var(--b2);
+}
+.cta-free:hover { border-color: var(--b3); color: var(--tx); }
+.cta-pro {
+  background: var(--gold); color: #06060d;
+  border: none;
+}
+.cta-pro:hover { background: var(--gold2); }
+.cta-career {
+  background: var(--s4); color: var(--vi2);
+  border: 1px solid rgba(123,109,244,0.2);
+}
+.cta-career:hover { background: var(--vd); }
+
+/* ── TESTIMONIALS ── */
+.testimonials-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px; margin-top: 56px;
+}
+.tcard {
+  background: var(--s2); border: 1px solid var(--b1);
+  border-radius: 16px; padding: 24px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.tcard-stars { color: var(--gold2); font-size: 14px; letter-spacing: 2px; }
+.tcard-quote { font-size: 14px; color: var(--tx); line-height: 1.7; }
+.tcard-quote em { color: var(--gold2); font-style: normal; font-weight: 600; }
+.tcard-person { display: flex; align-items: center; gap: 12px; margin-top: auto; }
+.tcard-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #06060d;
+  flex-shrink: 0;
+}
+.tcard-name { font-size: 13px; font-weight: 600; color: var(--tx); }
+.tcard-role { font-size: 12px; color: var(--tx3); }
+
+/* ── FAQ ── */
+.faq-list { display: flex; flex-direction: column; gap: 0; margin-top: 56px; }
+.faq-item {
+  border-bottom: 1px solid var(--b1);
+  padding: 0;
+}
+.faq-q {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 0;
+  font-size: 16px; font-weight: 600; color: var(--tx);
+  cursor: pointer; gap: 16px;
+  list-style: none;
+}
+.faq-q::after {
+  content: '+';
+  font-size: 20px; color: var(--gold2);
+  flex-shrink: 0; transition: transform 0.2s;
+}
+.faq-item.open .faq-q::after { transform: rotate(45deg); }
+.faq-a {
+  font-size: 14px; color: var(--tx2);
+  line-height: 1.7; padding-bottom: 20px;
+  display: none;
+}
+.faq-item.open .faq-a { display: block; }
+
+/* ── CTA BANNER ── */
+.cta-banner {
+  position: relative; z-index: 1;
+  background: var(--s1);
+  padding: 100px 24px;
+  text-align: center;
+  overflow: hidden;
+}
+.cta-banner::before {
+  content: '';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, rgba(200,168,75,0.08) 0%, transparent 65%);
+  pointer-events: none;
+}
+.cta-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+.cta-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(30px, 5vw, 52px);
+  font-weight: 800; letter-spacing: -2px;
+  color: var(--tx); line-height: 1.1;
+  margin-bottom: 16px;
+}
+.cta-title .gold { color: var(--gold2); }
+.cta-sub { font-size: 17px; color: var(--tx2); margin-bottom: 36px; line-height: 1.6; }
+.cta-actions { display: flex; align-items: center; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--b1);
+  padding: 48px 48px 32px;
+}
+.footer-grid {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px; max-width: 1100px; margin: 0 auto 48px;
+}
+.footer-brand { }
+.footer-logo {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 20px; font-weight: 800;
+  color: var(--gold2); margin-bottom: 12px;
+}
+.footer-tagline { font-size: 14px; color: var(--tx3); line-height: 1.6; max-width: 260px; }
+.footer-col-title {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--tx3); margin-bottom: 16px;
+}
+.footer-links { display: flex; flex-direction: column; gap: 10px; }
+.footer-links a {
+  font-size: 14px; color: var(--tx2);
+  text-decoration: none; transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--tx); }
+.footer-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 24px; border-top: 1px solid var(--b1);
+  max-width: 1100px; margin: 0 auto;
+  flex-wrap: wrap; gap: 12px;
+}
+.footer-copy { font-size: 13px; color: var(--tx3); }
+.footer-badges { display: flex; gap: 10px; }
+.fbadge {
+  padding: 4px 12px;
+  border: 1px solid var(--b1);
+  border-radius: 12px;
+  font-size: 11px; color: var(--tx3);
+  display: flex; align-items: center; gap: 5px;
+}
+
+/* ── SCROLL ANIMATIONS ── */
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── MOBILE ── */
+@media (max-width: 900px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .preview-content { grid-template-columns: 1fr; }
+  .preview-left { border-right: none; border-bottom: 1px solid var(--b1); }
+  .problem-grid, .features-grid, .testimonials-grid, .pricing-grid { grid-template-columns: 1fr; gap: 1px; }
+  .pricing-grid { gap: 12px; background: transparent; }
+  .how-grid { grid-template-columns: 1fr; }
+  .how-visual { position: static; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .compare-table { font-size: 13px; }
+  .compare-table th, .compare-table td { padding: 10px 12px; }
+  section { padding: 64px 20px; }
+  .hero { padding: 100px 20px 60px; }
+}
+@media (max-width: 600px) {
+  .hero-stats { flex-direction: column; border: none; background: transparent; gap: 12px; }
+  .hstat { border: 1px solid var(--b1); border-radius: 10px; padding: 14px 20px; }
+  .footer-grid { grid-template-columns: 1fr; }
+}
+
+/* ── TRUST BAR ── */
+.trust-bar {
+  position: relative; z-index: 1;
+  background: var(--s1);
+  border-top: 1px solid var(--b1);
+  border-bottom: 1px solid var(--b1);
+  padding: 28px 24px;
+  overflow: hidden;
+}
+.trust-bar-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center;
+  justify-content: center;
+  gap: 28px; flex-wrap: nowrap;
+}
+.trust-item {
+  display: flex; align-items: center;
+  gap: 10px; flex-shrink: 0;
+}
+.trust-item-icon {
+  font-size: 18px; flex-shrink: 0;
+}
+.trust-item-text {
+  font-size: 13px; font-weight: 500;
+  color: var(--tx2); line-height: 1.4;
+}
+.trust-item-label {
+  font-size: 11px; color: var(--tx3);
+  margin-top: 1px;
+}
+.trust-stars {
+  color: #f5a52a;
+  font-size: 14px; letter-spacing: 1px;
+  line-height: 1;
+}
+.tp-logo {
+  display: flex; align-items: center;
+  gap: 6px;
+}
+.tp-logo-icon {
+  width: 22px; height: 22px;
+  background: #00b67a;
+  border-radius: 3px;
+  display: flex; align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tp-logo-text {
+  font-size: 14px; font-weight: 700;
+  color: var(--tx); letter-spacing: -0.3px;
+}
+.trust-divider {
+  width: 1px; height: 32px;
+  background: var(--b1); flex-shrink: 0;
+}
+@media(max-width:700px){
+  .trust-bar-inner { gap: 24px; }
+  .trust-divider { display: none; }
+}
+
 /* ── LIVE COACH SPOTLIGHT ── */
 .live-section{position:relative;z-index:1;padding:100px 24px;overflow:hidden}
 .live-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:500px;background:radial-gradient(ellipse,rgba(123,109,244,0.08) 0%,transparent 65%);pointer-events:none}
 .live-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-.live-text{}
 .live-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:20px;background:rgba(123,109,244,0.1);border:1px solid rgba(123,109,244,0.25);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#a498ff;margin-bottom:20px}
 .live-badge-dot{width:7px;height:7px;border-radius:50%;background:#a498ff;animation:live-pulse 1.4s ease-in-out infinite}
 @keyframes live-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
@@ -24,9 +825,8 @@
 .ls-num{width:28px;height:28px;border-radius:50%;background:rgba(123,109,244,0.15);border:1px solid rgba(123,109,244,0.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#a498ff;flex-shrink:0;margin-top:2px}
 .ls-text{font-size:14px;color:#8c89a6;line-height:1.6}
 .ls-text strong{color:#edeaf7;font-weight:600}
-.live-cta{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:var(--vi);color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.2s;box-shadow:0 4px 24px rgba(123,109,244,0.25)}
+.live-cta{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:#7b6df4;color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.2s;box-shadow:0 4px 24px rgba(123,109,244,0.25)}
 .live-cta:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(123,109,244,0.4)}
-/* Mock phone/screen animation */
 .live-demo{position:relative}
 .demo-screen{background:#0f0f1c;border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:20px;box-shadow:0 32px 80px rgba(0,0,0,0.5)}
 .demo-topbar{display:flex;align-items:center;gap:6px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06)}
@@ -34,26 +834,18 @@
 .demo-title{font-size:12px;font-weight:700;color:#8c89a6;margin-left:8px;text-transform:uppercase;letter-spacing:1px}
 .demo-status{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:11px;color:#ef5f5f;font-weight:600}
 .demo-status-dot{width:6px;height:6px;border-radius:50%;background:#ef5f5f;animation:live-pulse 1.2s ease-in-out infinite}
-/* Question bubble */
-.demo-question{background:#171728;border-radius:12px 12px 12px 4px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#8c89a6;line-height:1.6;border:1px solid rgba(255,255,255,0.06);position:relative}
+.demo-question{background:#171728;border-radius:12px 12px 12px 4px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#8c89a6;line-height:1.6;border:1px solid rgba(255,255,255,0.06)}
 .demo-question-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#4d4a66;margin-bottom:5px}
-/* Thinking animation */
 .demo-thinking{display:flex;align-items:center;gap:8px;padding:10px 0;margin-bottom:12px}
 .think-dots{display:flex;gap:4px}
 .think-dot{width:7px;height:7px;border-radius:50%;background:#7b6df4;animation:tbounce 1.2s ease-in-out infinite}
 .think-dot:nth-child(2){animation-delay:0.15s}
 .think-dot:nth-child(3){animation-delay:0.3s}
 @keyframes tbounce{0%,80%,100%{transform:translateY(0);opacity:0.35}40%{transform:translateY(-6px);opacity:1}}
-.think-label{font-size:12px;color:#4d4a66}
-/* Answer bubble */
 .demo-answer{background:rgba(123,109,244,0.08);border:1px solid rgba(123,109,244,0.2);border-radius:4px 12px 12px 12px;padding:14px 16px;margin-bottom:14px}
 .demo-answer-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#7b6df4;margin-bottom:7px}
 .demo-answer-text{font-size:13px;color:#edeaf7;line-height:1.7}
-.demo-answer-text .typed{border-right:2px solid #a498ff;animation:cursor-blink 0.8s step-end infinite}
-@keyframes cursor-blink{0%,100%{border-color:#a498ff}50%{border-color:transparent}}
-/* Timer badge */
 .demo-timer{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:12px;background:rgba(69,222,122,0.1);border:1px solid rgba(69,222,122,0.2);font-size:11px;font-weight:600;color:#45de7a}
-/* Floating badges */
 .demo-float-1{position:absolute;top:-20px;right:-20px;background:#0f0f1c;border:1px solid rgba(200,168,75,0.25);border-radius:10px;padding:10px 14px;font-size:12px;font-weight:600;color:#e6c668;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
 .demo-float-2{position:absolute;bottom:-16px;left:-16px;background:#0f0f1c;border:1px solid rgba(69,222,122,0.25);border-radius:10px;padding:10px 14px;font-size:12px;font-weight:600;color:#45de7a;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
 @media(max-width:900px){.live-inner{grid-template-columns:1fr;gap:48px}.demo-float-1,.demo-float-2{display:none}}
@@ -77,8 +869,8 @@
     <li><a href="#faq">FAQ</a></li>
   </ul>
   <div class="nav-cta">
-    <a href="/login.html" class="btn-ghost">Log in</a>
-    <a href="/login.html" class="btn-primary">Start free →</a>
+    <a href="#" class="btn-ghost">Log in</a>
+    <a href="#pricing" class="btn-primary">Start free →</a>
   </div>
 </nav>
 
@@ -106,7 +898,7 @@
   </div>
 
   <div class="hero-actions">
-    <a href="/login.html" class="btn-hero">Optimize my resume free →</a>
+    <a href="#pricing" class="btn-hero">Optimize my resume free →</a>
     <a href="#how" class="btn-hero-ghost">See how it works</a>
   </div>
 
@@ -310,121 +1102,75 @@
     </div>
   </div>
 </section>
+
+
 <!-- LIVE COACH SPOTLIGHT -->
 <section class="live-section">
   <div class="live-inner">
-
     <div class="live-text">
-      <div class="live-badge">
-        <div class="live-badge-dot"></div>
-        New — PREPT AI Live
-      </div>
+      <div class="live-badge"><div class="live-badge-dot"></div>PREPT AI Live — Real-Time Coach</div>
       <h2 class="live-title">Your AI coach.<br><span class="hl">Live. During the call.</span></h2>
       <p class="live-sub">While you're on Zoom, Teams, or any video call — PREPT AI listens to every question your interviewer asks and feeds you a confident, personalized answer in under 3 seconds. On your phone or second screen. Invisible to everyone else.</p>
-
       <div class="live-steps">
-        <div class="live-step">
-          <div class="ls-num">1</div>
-          <div class="ls-text"><strong>Open PREPT AI on your phone or second screen</strong> before your interview starts. Add the company name and role — takes 30 seconds.</div>
-        </div>
-        <div class="live-step">
-          <div class="ls-num">2</div>
-          <div class="ls-text"><strong>Tap the mic when your interviewer speaks.</strong> PREPT AI listens, transcribes the question, and starts generating your answer immediately.</div>
-        </div>
-        <div class="live-step">
-          <div class="ls-num">3</div>
-          <div class="ls-text"><strong>Your coached answer appears in under 3 seconds.</strong> STAR-structured for behavioral questions. Delivery tips included. Speak it naturally — it sounds like you.</div>
-        </div>
-        <div class="live-step">
-          <div class="ls-num">4</div>
-          <div class="ls-text"><strong>After the call, get your debrief.</strong> Performance score, what you did well, what to improve, and a personalized thank-you email — ready to send.</div>
-        </div>
+        <div class="live-step"><div class="ls-num">1</div><div class="ls-text"><strong>Open PREPT AI on your phone or second screen</strong> before your interview starts. Add the company name and role — takes 30 seconds.</div></div>
+        <div class="live-step"><div class="ls-num">2</div><div class="ls-text"><strong>Tap the mic when your interviewer speaks.</strong> PREPT AI listens, transcribes the question, and starts generating your answer immediately.</div></div>
+        <div class="live-step"><div class="ls-num">3</div><div class="ls-text"><strong>Your coached answer appears in under 3 seconds.</strong> STAR-structured for behavioral questions. Delivery tips included. Speak it naturally — it sounds like you.</div></div>
+        <div class="live-step"><div class="ls-num">4</div><div class="ls-text"><strong>After the call, get your full debrief.</strong> Performance score, strengths, improvements, and a personalized thank-you email ready to send.</div></div>
       </div>
-
       <a href="/login.html" class="live-cta">Try PREPT AI Live free →</a>
     </div>
-
     <div class="live-demo">
-      <!-- Floating badges -->
       <div class="demo-float-1">⚡ Answer in 2.4 seconds</div>
       <div class="demo-float-2">✓ Works on Zoom · Teams · Meet</div>
-
       <div class="demo-screen">
         <div class="demo-topbar">
           <div class="demo-dot" style="background:#ff5f57"></div>
           <div class="demo-dot" style="background:#ffbd2e"></div>
           <div class="demo-dot" style="background:#28c840"></div>
           <div class="demo-title">PREPT AI Live</div>
-          <div class="demo-status">
-            <div class="demo-status-dot"></div>
-            Listening
-          </div>
+          <div class="demo-status"><div class="demo-status-dot"></div>Listening</div>
         </div>
-
-        <!-- Interviewer question -->
         <div class="demo-question">
           <div class="demo-question-label">🎙 Interviewer asked</div>
           Tell me about a time you had to manage a difficult situation under pressure. What did you do?
         </div>
-
-        <!-- Thinking -->
         <div class="demo-thinking">
-          <div class="think-dots">
-            <div class="think-dot"></div>
-            <div class="think-dot"></div>
-            <div class="think-dot"></div>
-          </div>
-          <span class="think-label">Coaching your answer...</span>
+          <div class="think-dots"><div class="think-dot"></div><div class="think-dot"></div><div class="think-dot"></div></div>
+          <span style="font-size:12px;color:#4d4a66">Coaching your answer...</span>
         </div>
-
-        <!-- Answer -->
         <div class="demo-answer">
           <div class="demo-answer-label">💬 Suggested answer</div>
           <div class="demo-answer-text" id="demoText"></div>
         </div>
-
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
           <div class="demo-timer">⏱ ~18 seconds to speak</div>
           <div style="display:flex;gap:6px">
-            <div style="padding:4px 10px;border-radius:8px;background:rgba(255,255,255,0.05);font-size:11px;font-weight:600;color:#8c89a6;cursor:default">⚡ Shorter</div>
-            <div style="padding:4px 10px;border-radius:8px;background:rgba(255,255,255,0.05);font-size:11px;font-weight:600;color:#8c89a6;cursor:default">📋 Bullets</div>
+            <div style="padding:4px 10px;border-radius:8px;background:rgba(255,255,255,0.05);font-size:11px;font-weight:600;color:#8c89a6">⚡ Shorter</div>
+            <div style="padding:4px 10px;border-radius:8px;background:rgba(255,255,255,0.05);font-size:11px;font-weight:600;color:#8c89a6">📋 Bullets</div>
           </div>
         </div>
       </div>
     </div>
-
   </div>
 </section>
-
 <script>
-// Typewriter animation for the demo answer
 (function(){
-  const text = "Situation: In my previous role, we had a critical deadline move up by two weeks with no reduction in scope. Task: As the point of contact, I had to keep the team focused and the client informed without causing panic. Action: I immediately called a team standup, broke the project into daily milestones, and set up a shared tracker everyone could see in real time. Result: We delivered on the new deadline. The client actually commented on how calm the process felt from their end.";
+  const text = "Situation: In my previous role, a critical deadline moved up by two weeks with no reduction in scope. Task: As the point of contact I had to keep the team focused and the client calm. Action: I called an immediate standup, broke the project into daily milestones, and set up a shared tracker everyone could see. Result: We delivered on the new deadline and the client commented on how smooth the process felt from their end.";
   const el = document.getElementById('demoText');
-  if (!el) return;
+  if(!el) return;
   let i = 0;
-  el.classList.add('typed');
-  const interval = setInterval(() => {
-    if (i < text.length) {
-      el.textContent = text.slice(0, i + 1);
-      i++;
-    } else {
-      el.classList.remove('typed');
-      clearInterval(interval);
-      // Restart after 4 seconds
-      setTimeout(() => {
-        i = 0;
-        el.textContent = '';
-        el.classList.add('typed');
-        const restart = setInterval(() => {
-          if (i < text.length) { el.textContent = text.slice(0, i + 1); i++; }
-          else { el.classList.remove('typed'); clearInterval(restart); }
-        }, 22);
-      }, 4000);
-    }
-  }, 22);
+  function type(){
+    el.style.borderRight = '2px solid #a498ff';
+    const iv = setInterval(()=>{
+      if(i < text.length){ el.textContent = text.slice(0, ++i); }
+      else { el.style.borderRight = 'none'; clearInterval(iv); setTimeout(()=>{ i=0; el.textContent=''; type(); }, 4000); }
+    }, 22);
+  }
+  type();
 })();
 </script>
+
+
 <!-- COMPARISON -->
 <section id="compare">
   <div class="section-inner">
@@ -526,7 +1272,7 @@
           <div class="pf"><span class="pf-ico no">✗</span><span>LinkedIn optimizer</span></div>
           <div class="pf"><span class="pf-ico no">✗</span><span>Unlimited interviews</span></div>
         </div>
-        <a href="/login.html" class="price-cta cta-free">Get started free</a>
+        <a href="#" class="price-cta cta-free">Get started free</a>
       </div>
 
       <div class="price-card featured">
@@ -651,21 +1397,34 @@
     <h2 class="cta-title">Your next job is<br><span class="gold">one optimized resume away.</span></h2>
     <p class="cta-sub">Start free. No credit card. See your ATS score in under 2 minutes.</p>
     <div class="cta-actions">
-      <a href="/login.html" class="btn-hero">Analyze my resume free →</a>
+      <a href="#pricing" class="btn-hero">Analyze my resume free →</a>
     </div>
     <div style="margin-top:16px;font-size:13px;color:var(--tx3)">
       <span style="color:#45de7a">●</span> &nbsp;Free tier always available &nbsp;·&nbsp; Upgrade only when you see the value
     </div>
   </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-item-icon">🌐</div>
+      <div class="trust-item-text">
+        <div style="font-weight:600;color:var(--tx)">Used in 50+ industries</div>
+        <div class="trust-item-label">From legal to logistics</div>
+      </div>
+    </div>
+  </div>
 </div>
+
 <!-- TRUST BAR -->
 <div class="trust-bar">
   <div class="trust-bar-inner">
 
+    <!-- Trustpilot -->
     <div class="trust-item">
       <div class="tp-logo">
         <div class="tp-logo-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L14.9 9.1H22.5L16.8 13.8L18.9 21L12 16.9L5.1 21L7.2 13.8L1.5 9.1H9.1L12 2Z" fill="white"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L14.9 9.1H22.5L16.8 13.8L18.9 21L12 16.9L5.1 21L7.2 13.8L1.5 9.1H9.1L12 2Z" fill="white"/>
+          </svg>
         </div>
         <div>
           <div class="tp-logo-text">Trustpilot</div>
@@ -678,7 +1437,9 @@
       </div>
     </div>
 
+    <div class="trust-divider"></div>
 
+    <!-- Users -->
     <div class="trust-item">
       <div class="trust-item-icon">👥</div>
       <div class="trust-item-text">
@@ -687,10 +1448,14 @@
       </div>
     </div>
 
+    <div class="trust-divider"></div>
 
+    <!-- Stripe -->
     <div class="trust-item">
       <div class="trust-item-icon" style="color:#635bff">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z"/></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z"/>
+        </svg>
       </div>
       <div class="trust-item-text">
         <div style="font-weight:600;color:var(--tx)">Secured by Stripe</div>
@@ -698,7 +1463,9 @@
       </div>
     </div>
 
-   
+    <div class="trust-divider"></div>
+
+    <!-- Privacy -->
     <div class="trust-item">
       <div class="trust-item-icon">🔒</div>
       <div class="trust-item-text">
@@ -707,18 +1474,13 @@
       </div>
     </div>
 
+    <div class="trust-divider"></div>
 
-    <div class="trust-item">
-      <div class="trust-item-icon">🌐</div>
-      <div class="trust-item-text">
-        <div style="font-weight:600;color:var(--tx)">Used in 50+ industries</div>
-        <div class="trust-item-label">From legal to logistics</div>
-      </div>
-    </div>
 
   </div>
 </div>
-  
+
+
 <!-- FOOTER -->
 <footer>
   <div class="footer-grid">
@@ -729,8 +1491,8 @@
     <div>
       <div class="footer-col-title">Product</div>
       <div class="footer-links">
-        <a href="#">PREPT AI Match</a>
-        <a href="#">PREPT AI Live</a>
+        <a href="/prept_match_v2.html">PREPT AI Match</a>
+        <a href="/prept_v2.html">PREPT AI Live</a>
         <a href="#pricing">Pricing</a>
         <a href="/changelog.html">Changelog</a>
       </div>
@@ -758,6 +1520,7 @@
     <div class="footer-badges">
       <div class="fbadge"><span>🔒</span> SOC 2 Ready</div>
       <div class="fbadge"><span>🛡</span> No data stored</div>
+      
     </div>
   </div>
 </footer>
