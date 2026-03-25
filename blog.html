@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — PREPT AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:#07070e;color:#edeaf7;font-family:'Outfit',sans-serif;font-size:16px;line-height:1.6}
+body::before{content:'';position:fixed;top:-20%;left:20%;width:600px;height:500px;background:radial-gradient(ellipse,rgba(123,109,244,0.05) 0%,transparent 65%);pointer-events:none;z-index:0}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;padding:0 48px;height:62px;border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(7,7,14,0.95);backdrop-filter:blur(24px)}
+.nav-logo{font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:800;color:#e6c668;letter-spacing:-0.5px;text-decoration:none}
+.nav-back{margin-left:auto;font-size:13px;color:#8c89a6;text-decoration:none;padding:6px 16px;border:1px solid rgba(255,255,255,0.09);border-radius:8px;transition:all 0.2s}
+.nav-back:hover{color:#edeaf7;border-color:rgba(255,255,255,0.16)}
+.wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:64px 24px 100px}
+.eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#c8a84b;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:'';display:block;width:24px;height:1px;background:#c8a84b}
+h1{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(32px,5vw,52px);font-weight:800;letter-spacing:-2px;color:#edeaf7;line-height:1.1;margin-bottom:20px}
+h1 .gold{color:#e6c668}
+.lead{font-size:18px;color:#8c89a6;line-height:1.7;margin-bottom:48px;max-width:600px}
+h2{font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:700;color:#edeaf7;margin:48px 0 14px;letter-spacing:-0.5px}
+h3{font-size:17px;font-weight:700;color:#edeaf7;margin:32px 0 10px}
+p{font-size:15px;color:#8c89a6;line-height:1.8;margin-bottom:16px}
+p strong{color:#edeaf7;font-weight:600}
+.card{background:#0f0f1c;border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:28px 32px;margin-bottom:20px}
+.rule{height:1px;background:rgba(255,255,255,0.06);margin:40px 0}
+footer{position:relative;z-index:1;text-align:center;padding:28px 24px;border-top:1px solid rgba(255,255,255,0.06);font-size:13px;color:#4d4a66}
+footer a{color:#c8a84b;text-decoration:none}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">PREPT AI</a>
+  <a class="nav-back" href="/">← Back to home</a>
+</nav>
+
+<div class="wrap">
+  <div class="eyebrow">Blog</div>
+  <h1>Thoughts on the <span class="gold">job search.</span></h1>
+  <p class="lead">Honest writing about hiring, resumes, interviews, and the AI tools changing all of it.</p>
+
+  <div class="card" style="cursor:pointer" onclick="window.location.href='/blog-post-2.html'">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <div style="background:rgba(123,109,244,0.1);border:1px solid rgba(123,109,244,0.2);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700;color:#a498ff">Behind the Build</div>
+      <div style="font-size:12px;color:#4d4a66">March 25, 2026</div>
+    </div>
+    <h2 style="margin:0 0 10px;font-size:22px;letter-spacing:-0.5px">12 hours in and I still can't stop.</h2>
+    <p style="margin:0;font-size:14px;color:#8c89a6;line-height:1.7">A totally transparent look at what launch day actually looked like — security audits, rabbit holes, and way too much caffeine...</p>
+    <div style="margin-top:16px;font-size:13px;color:#7b6df4;font-weight:600">Read post →</div>
+  </div>
+
+    <div class="card" style="cursor:pointer" onclick="window.location.href='/blog-post-1.html'">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <div style="background:rgba(200,168,75,0.1);border:1px solid rgba(200,168,75,0.2);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700;color:#e6c668">Founder Note</div>
+      <div style="font-size:12px;color:#4d4a66;font-family:'JetBrains Mono',monospace">March 24, 2026</div>
+    </div>
+    <h2 style="margin:0 0 10px;font-size:22px;letter-spacing:-0.5px">We're live. Here's what I want you to know.</h2>
+    <p style="margin:0;font-size:14px;color:#8c89a6;line-height:1.7">This has been a passion project a long time in the making. I'm excited to finally put it out there — and I want to hear what you think...</p>
+    <div style="margin-top:16px;font-size:13px;color:#7b6df4;font-weight:600">Read post →</div>
+  </div>
+
+  <div style="background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.08);border-radius:12px;padding:28px;text-align:center;margin-top:12px">
+    <div style="font-size:15px;color:#4d4a66">More posts coming soon.</div>
+    <div style="font-size:13px;color:#2e2a44;margin-top:6px">Topics: ATS optimization · interview coaching · job search strategy · AI in hiring</div>
+  </div>
+</div>
+
+<footer>© 2026 PREPT AI · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="/cdn-cgi/l/email-protection#89fbe0eae1e8fbedc9fae6e5e0faecf8fce0fdf0e1e6e5ed
