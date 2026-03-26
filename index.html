@@ -1001,10 +1001,12 @@ footer {
     <li><a href="#features">Features</a></li>
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#faq">FAQ</a></li>
-    <li><a href="#" id="logoutBtn" onclick="handleLogout(event)" style="display:none;color:rgba(255,255,255,0.35)">Log out</a></li>
   </ul>
   <div class="nav-cta">
-    <a href="/login.html" class="btn-ghost">Log in</a>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+      <a href="/login.html" class="btn-ghost">Log in</a>
+      <a href="#" id="logoutBtn" onclick="handleLogout(event)" style="display:none;font-size:11px;color:rgba(255,255,255,0.3);text-decoration:underline;text-align:center;cursor:pointer">Log out</a>
+    </div>
     <a href="/login.html" class="btn-primary">Try free →</a>
   </div>
 </nav>
