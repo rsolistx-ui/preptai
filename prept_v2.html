@@ -122,6 +122,7 @@ select.sidebar-input{cursor:pointer}
   .sidebar{display:none}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -223,10 +224,67 @@ let mockQuestions = [];
 let mockIndex = 0;
 let sessionAnswers = [];
 
-// Get user from session
-const userRaw = sessionStorage.getItem('preptai_user');
-const user = userRaw ? JSON.parse(userRaw) : null;
-const userPlan = user?.plan || 'free';
+// ── SUPABASE AUTH ─────────────────────────────────────────────────────────────
+const SUPABASE_URL      = 'https://lfxfwhitegsjeowlcvqk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeGZ3aGl0ZWdzamVvd2xjdnFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyODM3ODMsImV4cCI6MjA4OTg1OTc4M30.f67zZLrSbaLbTgWZtvx2AIr4aCGVRxuynEFm1_CKvWs';
+
+let user     = null;
+let userPlan = 'free';
+
+async function initAuth() {
+  try {
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const { data: { session } } = await sb.auth.getSession();
+
+    if (session?.user) {
+      user = session.user;
+      const { data: sub } = await sb
+        .from('subscribers')
+        .select('plan')
+        .eq('email', user.email)
+        .single();
+      userPlan = sub?.plan || 'free';
+      sessionStorage.setItem('preptai_user', JSON.stringify({ email: user.email, plan: userPlan }));
+    } else {
+      const userRaw = sessionStorage.getItem('preptai_user');
+      if (userRaw) {
+        const stored = JSON.parse(userRaw);
+        user = stored;
+        userPlan = stored.plan || 'free';
+      }
+    }
+  } catch(e) {
+    const userRaw = sessionStorage.getItem('preptai_user');
+    if (userRaw) {
+      const stored = JSON.parse(userRaw);
+      user = stored;
+      userPlan = stored.plan || 'free';
+    }
+  }
+
+  // Time-based greeting
+  const hour = new Date().getHours();
+  const timeGreet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const firstName = user?.user_metadata?.full_name?.split(' ')[0]
+    || user?.email?.split('@')[0]
+    || null;
+  const greetName = firstName ? ', ' + firstName : '';
+
+  setTimeout(() => {
+    if (user) {
+      const planLabel = userPlan.charAt(0).toUpperCase() + userPlan.slice(1);
+      const planColor = ['pro','career'].includes(userPlan) ? '#45de7a' : '#e6c668';
+      const planExtra = userPlan === 'free'
+        ? ' · <span style="color:#f5a52a">' + (FREE_LIMIT - questionCount) + ' free questions remaining</span>'
+        : ' · Unlimited';
+      addMsg('system', timeGreet + greetName + '! 👋',
+        'Signed in as <strong>' + user.email + '</strong> · Plan: <strong style="color:' + planColor + '">' + planLabel + '</strong>' + planExtra);
+    }
+  }, 300);
+}
+
+initAuth();
 
 // Build sector grid
 const grid = document.getElementById('sectorGrid');
@@ -507,12 +565,7 @@ function clearChat() {
   document.getElementById('upgradeBanner').style.display = 'none';
 }
 
-// Welcome message
-setTimeout(() => {
-  if (user) {
-    addMsg('system', '👋 Welcome back', `Signed in as <strong>${user.email}</strong> · Plan: <strong style="color:${userPlan === 'pro' || userPlan === 'career' ? '#45de7a' : '#e6c668'}">${userPlan.charAt(0).toUpperCase() + userPlan.slice(1)}</strong>${userPlan === 'free' ? ` · <span style="color:#f5a52a">${FREE_LIMIT - questionCount} free questions remaining</span>` : ' · Unlimited'}`);
-  }
-}, 300);
+// Greeting handled inside initAuth()
 </script>
 </body>
 </html>
