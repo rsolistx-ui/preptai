@@ -76,18 +76,19 @@ select.sidebar-input{cursor:pointer}
 .think-label{font-size:12px;color:#4d4a66}
 
 /* INPUT BAR */
-.input-bar{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.06);background:#08080f}
+.input-bar{padding:14px 20px 16px;border-top:1px solid rgba(255,255,255,0.06);background:#08080f}
 .input-row{display:flex;gap:10px;align-items:flex-end;max-width:900px}
 .input-wrap{flex:1;position:relative}
-#questionInput{width:100%;background:#111120;border:1px solid rgba(255,255,255,0.09);color:#edeaf7;font-family:'Outfit',sans-serif;font-size:14px;padding:12px 50px 12px 14px;border-radius:10px;outline:none;resize:none;min-height:48px;max-height:140px;line-height:1.5;transition:border-color 0.2s}
+#questionInput{width:100%;background:#111120;border:1px solid rgba(255,255,255,0.09);color:#edeaf7;font-family:'Outfit',sans-serif;font-size:14px;padding:13px 46px 13px 14px;border-radius:10px;outline:none;resize:none;min-height:52px;max-height:140px;line-height:1.6;transition:border-color 0.2s}
 #questionInput:focus{border-color:#7b6df4}
-#questionInput::placeholder{color:#4d4a66}
-.mic-btn{position:absolute;right:10px;bottom:10px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(123,109,244,0.15);color:#a498ff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:14px}
+#questionInput::placeholder{color:#4d4a66;font-size:13px}
+.mic-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:rgba(123,109,244,0.15);color:#a498ff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:13px}
 .mic-btn:hover{background:rgba(123,109,244,0.25)}
 .mic-btn.listening{background:#ef5f5f;color:#fff;animation:pulse 0.8s ease-in-out infinite}
-.send-btn{padding:12px 20px;background:#7b6df4;color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap;height:48px}
+.send-btn{padding:10px 18px;background:#7b6df4;color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap;height:52px}
 .send-btn:hover{background:#9488ff;transform:translateY(-1px)}
 .send-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.safari-note{font-size:11px;color:rgba(255,255,255,0.18);text-align:right;margin-top:5px;padding-right:2px}
 
 /* EMPTY STATE */
 .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;gap:16px}
@@ -128,10 +129,13 @@ select.sidebar-input{cursor:pointer}
 
 <!-- NAV -->
 <nav>
-  <a class="nav-logo" href="/">PREPT AI</a>
+  <a class="nav-logo" href="/" style="display:flex;align-items:center;gap:7px">
+    <div style="width:7px;height:7px;border-radius:50%;background:#e6c668;animation:pulse 2s ease-in-out infinite;flex-shrink:0"></div>
+    PREPT AI
+  </a>
   <div class="nav-badge"><div class="nav-badge-dot"></div> Live</div>
   <a href="/prept_match_v2.html" class="nav-btn nav-btn-ghost">Resume Match</a>
-  <a href="/login.html" class="nav-btn nav-btn-gold">My Account</a>
+  <a href="/login.html" class="nav-btn nav-btn-gold" id="accountBtn">My Account</a>
   <a href="https://billing.stripe.com/p/login/bJe4gAdlkddX92gfLycbC00" target="_blank" class="nav-btn nav-btn-ghost">Manage billing</a>
 </nav>
 
@@ -205,11 +209,11 @@ select.sidebar-input{cursor:pointer}
       <div class="input-row">
         <div class="input-wrap">
           <textarea id="questionInput" placeholder="Type the interviewer's question here... or tap the mic to speak" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-          <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="Click to speak">🎤</button>
+          <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="🎤 Voice input — works best in Chrome or Edge. Not supported in Safari.">🎤</button>
         </div>
         <button class="send-btn" id="sendBtn" onclick="sendQuestion()">Coach me →</button>
-        <div style="font-size:11px;color:rgba(255,255,255,0.2);text-align:right;margin-top:6px;padding-right:4px">🎤 Voice input works best in Chrome or Edge — not supported in Safari</div>
       </div>
+      <div class="safari-note">🎤 Voice input works best in Chrome or Edge — not supported in Safari</div>
     </div>
   </div>
 
@@ -325,6 +329,15 @@ async function initAuth() {
   // Mark auth as ready before showing greeting
   authReady = true;
 
+  // Update My Account button
+  const accountBtn = document.getElementById('accountBtn');
+  if (accountBtn && user) {
+    accountBtn.textContent = '👤 ' + (user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'Account');
+    accountBtn.removeAttribute('href');
+    accountBtn.style.cursor = 'default';
+    accountBtn.title = user.email + ' · ' + userPlan.charAt(0).toUpperCase() + userPlan.slice(1) + ' plan';
+  }
+
   setTimeout(() => {
     if (user) {
       const planLabel = userPlan.charAt(0).toUpperCase() + userPlan.slice(1);
@@ -333,12 +346,26 @@ async function initAuth() {
         ? ' · <span style="color:#f5a52a">' + (FREE_LIMIT - questionCount) + ' free questions remaining</span>'
         : ' · Unlimited';
       addMsg('system', timeGreet + greetName + '! 👋',
-        'Signed in as <strong>' + user.email + '</strong> · Plan: <strong style="color:' + planColor + '">' + planLabel + '</strong>' + planExtra);
+        'Signed in as <strong>' + user.email + '</strong> · Plan: <strong style="color:' + planColor + '">' + planLabel + '</strong>' + planExtra
+        + ' · <a href="https://billing.stripe.com/p/login/bJe4gAdlkddX92gfLycbC00" target="_blank" style="color:#8c89a6">Manage billing</a>'
+        + ' · <a href="#" onclick="handleSignOut(event)" style="color:#8c89a6">Sign out</a>');
     } else {
       addMsg('system', 'Welcome to PREPT AI Live 👋',
-        'Start by typing an interview question below, or use the mic. <a href="/login.html" style="color:#7b6df4">Sign in</a> to track your usage.');
+        'Start by typing an interview question below, or use the mic. <a href="/login.html" style="color:#7b6df4">Sign in</a> to use your free questions.');
     }
   }, 400);
+}
+
+async function handleSignOut(e) {
+  e.preventDefault();
+  try {
+    const sb = getSB();
+    await sb.auth.signOut();
+    sessionStorage.removeItem('preptai_user');
+    window.location.href = '/login.html';
+  } catch(err) {
+    window.location.href = '/login.html';
+  }
 }
 
 initAuth();
@@ -362,7 +389,13 @@ function setMode(mode) {
   ['live','mock','debrief'].forEach(m => {
     document.getElementById('tab' + m.charAt(0).toUpperCase() + m.slice(1)).classList.toggle('on', m === mode);
   });
-  if (mode === 'mock') startMock();
+  if (mode === 'mock') {
+    if (authReady) {
+      startMock();
+    } else {
+      setTimeout(() => startMock(), 1500);
+    }
+  }
   if (mode === 'debrief') showDebrief();
 }
 
@@ -376,8 +409,14 @@ function handleKey(e) {
 }
 
 function useStarter(el) {
-  document.getElementById('questionInput').value = el.textContent;
+  const input = document.getElementById('questionInput');
+  input.value = el.textContent;
   document.getElementById('emptyState')?.remove();
+  input.focus();
+  // Give visual feedback immediately
+  el.style.background = 'rgba(123,109,244,0.15)';
+  el.style.borderColor = 'rgba(123,109,244,0.4)';
+  el.style.color = '#a498ff';
   sendQuestion();
 }
 
@@ -586,7 +625,8 @@ let isListening = false;
 
 function toggleMic() {
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Speech recognition is not supported in this browser. Please use Chrome or Edge, or type your question manually.');
+    addMsg('system', '🎤 Mic not supported',
+      'Speech recognition requires Chrome or Edge. Please type your question instead.');
     return;
   }
   if (isListening) {
