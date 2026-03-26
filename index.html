@@ -1001,6 +1001,7 @@ footer {
     <li><a href="#features">Features</a></li>
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#faq">FAQ</a></li>
+    <li><a href="#" id="logoutBtn" onclick="handleLogout(event)" style="display:none;color:rgba(255,255,255,0.35)">Log out</a></li>
   </ul>
   <div class="nav-cta">
     <a href="/login.html" class="btn-ghost">Log in</a>
@@ -1785,10 +1786,28 @@ function animateCounter(el, target, suffix = '') {
       }
     });
 
+    // Show logout button in nav
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.style.display = 'block';
+
   } catch(e) {
     console.log('Session check skipped:', e.message);
   }
 })();
+
+async function handleLogout(e) {
+  e.preventDefault();
+  try {
+    const { createClient } = supabase;
+    const sb = createClient('https://lfxfwhitegsjeowlcvqk.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeGZ3aGl0ZWdzamVvd2xjdnFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyODM3ODMsImV4cCI6MjA4OTg1OTc4M30.f67zZLrSbaLbTgWZtvx2AIr4aCGVRxuynEFm1_CKvWs');
+    await sb.auth.signOut();
+    sessionStorage.removeItem('preptai_user');
+    window.location.reload();
+  } catch(err) {
+    console.error('Logout error:', err);
+    window.location.reload();
+  }
+}
 </script>
 </body>
 </html>
