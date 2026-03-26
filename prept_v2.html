@@ -76,17 +76,16 @@ select.sidebar-input{cursor:pointer}
 .think-label{font-size:12px;color:#4d4a66}
 
 /* INPUT BAR */
-.input-bar{padding:14px 20px 16px;border-top:1px solid rgba(255,255,255,0.06);background:#08080f}
-.input-row{display:flex;gap:10px;align-items:flex-end;max-width:900px}
-.input-wrap{position:relative;width:100%}
+.input-bar{padding:14px 20px 16px;border-top:1px solid rgba(255,255,255,0.06);background:#08080f;max-width:940px}
+.input-wrap{position:relative;width:100%;margin-bottom:6px}
 #questionInput{width:100%;background:#111120;border:1px solid rgba(255,255,255,0.09);color:#edeaf7;font-family:'Outfit',sans-serif;font-size:14px;padding:13px 46px 13px 14px;border-radius:10px;outline:none;resize:none;min-height:52px;max-height:140px;line-height:1.6;transition:border-color 0.2s}
 #questionInput:focus{border-color:#7b6df4}
 #questionInput::placeholder{color:#4d4a66;font-size:13px}
-.mic-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:rgba(123,109,244,0.15);color:#a498ff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:13px}
+.mic-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:rgba(123,109,244,0.15);color:#a498ff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:13px;z-index:2}
 .mic-btn:hover{background:rgba(123,109,244,0.25)}
 .mic-btn.listening{background:#ef5f5f;color:#fff;animation:pulse 0.8s ease-in-out infinite}
-.safari-note{font-size:11px;color:rgba(255,255,255,0.85);padding-left:2px}
-.send-btn{padding:12px 20px;background:#7b6df4;color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap;height:52px}
+.safari-note{font-size:11px;color:rgba(255,255,255,0.85);padding-left:2px;margin-bottom:8px}
+.send-btn{width:100%;padding:13px;background:#7b6df4;color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s}
 .send-btn:hover{background:#9488ff;transform:translateY(-1px)}
 .send-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 
@@ -138,6 +137,20 @@ select.sidebar-input{cursor:pointer}
   <a href="/login.html" class="nav-btn nav-btn-gold" id="accountBtn">My Account</a>
   <a href="https://billing.stripe.com/p/login/bJe4gAdlkddX92gfLycbC00" target="_blank" class="nav-btn nav-btn-ghost">Manage billing</a>
 </nav>
+
+<!-- ACCOUNT PANEL -->
+<div id="accountPanel" style="display:none;position:fixed;top:66px;right:20px;z-index:200;background:#13131f;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:20px 24px;min-width:280px;box-shadow:0 8px 40px rgba(0,0,0,0.5)">
+  <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#4d4a66;margin-bottom:12px">Your Account</div>
+  <div id="panelEmail" style="font-size:14px;color:#edeaf7;font-weight:600;margin-bottom:4px"></div>
+  <div id="panelPlan" style="font-size:12px;margin-bottom:16px"></div>
+  <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:16px"></div>
+  <div id="panelUsage" style="font-size:13px;color:#8c89a6;margin-bottom:16px;line-height:1.7"></div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <a href="https://billing.stripe.com/p/login/bJe4gAdlkddX92gfLycbC00" target="_blank" style="display:block;padding:9px 14px;background:rgba(200,168,75,0.1);border:1px solid rgba(200,168,75,0.2);border-radius:8px;font-size:13px;font-weight:600;color:#e6c668;text-decoration:none;text-align:center">Manage billing →</a>
+    <a href="/#pricing" style="display:block;padding:9px 14px;background:rgba(123,109,244,0.1);border:1px solid rgba(123,109,244,0.2);border-radius:8px;font-size:13px;font-weight:600;color:#a498ff;text-decoration:none;text-align:center">View plans →</a>
+    <button onclick="handleSignOut(event)" style="padding:9px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-size:13px;font-weight:600;color:#8c89a6;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s" onmouseover="this.style.color='#edeaf7'" onmouseout="this.style.color='#8c89a6'">Sign out</button>
+  </div>
+</div>
 
 <div class="app">
 
@@ -206,14 +219,12 @@ select.sidebar-input{cursor:pointer}
     </div>
 
     <div class="input-bar">
-      <div class="input-row">
-        <div class="input-wrap">
-          <textarea id="questionInput" placeholder="Type the interviewer's question here... or tap the mic to speak" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-          <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="🎤 Voice input — works best in Chrome or Edge. Not supported in Safari.">🎤</button>
-        </div>
-        <button class="send-btn" id="sendBtn" onclick="sendQuestion()">Coach me →</button>
+      <div class="input-wrap">
+        <textarea id="questionInput" placeholder="Type the interviewer's question here... or tap the mic to speak" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="🎤 Voice input — works best in Chrome or Edge. Not supported in Safari.">🎤</button>
       </div>
       <div class="safari-note">🎤 Voice input works best in Chrome or Edge — not currently supported in Safari</div>
+      <button class="send-btn" id="sendBtn" onclick="sendQuestion()">Coach me →</button>
     </div>
   </div>
 
@@ -329,13 +340,14 @@ async function initAuth() {
   // Mark auth as ready before showing greeting
   authReady = true;
 
-  // Update My Account button
+  // Update My Account button — clicking shows account panel
   const accountBtn = document.getElementById('accountBtn');
   if (accountBtn && user) {
-    accountBtn.textContent = '👤 ' + (user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'Account');
+    const name = user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'Account';
+    accountBtn.textContent = '👤 ' + name;
     accountBtn.removeAttribute('href');
-    accountBtn.style.cursor = 'default';
-    accountBtn.title = user.email + ' · ' + userPlan.charAt(0).toUpperCase() + userPlan.slice(1) + ' plan';
+    accountBtn.style.cursor = 'pointer';
+    accountBtn.onclick = () => toggleAccountPanel(user, userPlan);
   }
 
   setTimeout(() => {
@@ -354,6 +366,35 @@ async function initAuth() {
         'Start by typing an interview question below, or use the mic. <a href="/login.html" style="color:#7b6df4">Sign in</a> to use your free questions.');
     }
   }, 400);
+}
+
+function toggleAccountPanel(user, plan) {
+  const panel = document.getElementById('accountPanel');
+  if (!panel) return;
+  if (panel.style.display !== 'none') {
+    panel.style.display = 'none';
+    return;
+  }
+  // Populate panel
+  document.getElementById('panelEmail').textContent = user.email;
+  const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
+  const planColor = ['pro','career'].includes(plan) ? '#45de7a' : '#e6c668';
+  document.getElementById('panelPlan').innerHTML = `Plan: <strong style="color:${planColor}">${planLabel}</strong>`;
+  const FREE_LIMIT = 3;
+  const usageText = plan === 'free'
+    ? `${FREE_LIMIT - questionCount} of ${FREE_LIMIT} free interview questions remaining this month`
+    : `Unlimited interview questions · Resets monthly`;
+  document.getElementById('panelUsage').textContent = usageText;
+  panel.style.display = 'block';
+  // Close when clicking outside
+  setTimeout(() => {
+    document.addEventListener('click', function close(e) {
+      if (!panel.contains(e.target) && e.target.id !== 'accountBtn') {
+        panel.style.display = 'none';
+        document.removeEventListener('click', close);
+      }
+    });
+  }, 100);
 }
 
 async function handleSignOut(e) {
@@ -411,19 +452,25 @@ function handleKey(e) {
 function useStarter(el) {
   const input = document.getElementById('questionInput');
   input.value = el.textContent;
-  document.getElementById('emptyState')?.remove();
+  // Hide empty state but keep chips accessible via scroll
+  const empty = document.getElementById('emptyState');
+  if (empty) empty.style.display = 'none';
   input.focus();
-  // Give visual feedback immediately
   el.style.background = 'rgba(123,109,244,0.15)';
   el.style.borderColor = 'rgba(123,109,244,0.4)';
   el.style.color = '#a498ff';
+  setTimeout(() => {
+    el.style.background = '';
+    el.style.borderColor = '';
+    el.style.color = '';
+  }, 800);
   sendQuestion();
 }
 
 function addMsg(type, labelText, content, meta = null) {
   const area = document.getElementById('chatArea');
   const empty = document.getElementById('emptyState');
-  if (empty) empty.remove();
+  if (empty) empty.style.display = 'none';
 
   const wrap = document.createElement('div');
   wrap.className = `msg msg-${type}`;
