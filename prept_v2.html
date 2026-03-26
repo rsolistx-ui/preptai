@@ -76,16 +76,20 @@ select.sidebar-input{cursor:pointer}
 .think-label{font-size:12px;color:#4d4a66}
 
 /* INPUT BAR */
-.input-bar{padding:14px 20px 16px;border-top:1px solid rgba(255,255,255,0.06);background:#08080f;max-width:940px}
-.input-wrap{position:relative;width:100%;margin-bottom:6px}
-#questionInput{width:100%;background:#111120;border:1px solid rgba(255,255,255,0.09);color:#edeaf7;font-family:'Outfit',sans-serif;font-size:14px;padding:13px 46px 13px 14px;border-radius:10px;outline:none;resize:none;min-height:52px;max-height:140px;line-height:1.6;transition:border-color 0.2s}
+.chips-bar{padding:10px 20px 0;background:#08080f}
+.chips-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#4d4a66;margin-bottom:7px}
+.chips-row{display:flex;flex-wrap:wrap;gap:6px}
+.input-bar{padding:12px 20px 14px;border-top:1px solid rgba(255,255,255,0.06);background:#08080f}
+.input-row{display:flex;gap:10px;align-items:stretch}
+.input-wrap{flex:1;position:relative}
+#questionInput{width:100%;height:100%;background:#111120;border:1px solid rgba(255,255,255,0.09);color:#edeaf7;font-family:'Outfit',sans-serif;font-size:14px;padding:13px 46px 13px 14px;border-radius:10px;outline:none;resize:none;min-height:48px;max-height:140px;line-height:1.5;transition:border-color 0.2s}
 #questionInput:focus{border-color:#7b6df4}
 #questionInput::placeholder{color:#4d4a66;font-size:13px}
-.mic-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:rgba(123,109,244,0.15);color:#a498ff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:13px;z-index:2}
+.mic-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:rgba(123,109,244,0.15);color:#a498ff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:13px;z-index:2}
 .mic-btn:hover{background:rgba(123,109,244,0.25)}
 .mic-btn.listening{background:#ef5f5f;color:#fff;animation:pulse 0.8s ease-in-out infinite}
-.safari-note{font-size:11px;color:rgba(255,255,255,0.85);padding-left:2px;margin-bottom:8px}
-.send-btn{width:100%;padding:13px;background:#7b6df4;color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.safari-note{font-size:11px;color:rgba(255,255,255,0.85);padding-left:2px;margin-top:6px}
+.send-btn{padding:0 20px;background:#7b6df4;color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap;align-self:stretch}
 .send-btn:hover{background:#9488ff;transform:translateY(-1px)}
 .send-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 
@@ -200,14 +204,6 @@ select.sidebar-input{cursor:pointer}
         <div class="empty-icon">🎙</div>
         <div class="empty-title">PREPT AI Live is ready.</div>
         <div class="empty-sub">Type or speak your interviewer's question and get a coached answer in seconds. Works alongside any video call.</div>
-        <div class="starter-chips">
-          <div class="chip" onclick="useStarter(this)">Tell me about yourself</div>
-          <div class="chip" onclick="useStarter(this)">What's your greatest weakness?</div>
-          <div class="chip" onclick="useStarter(this)">Why do you want to work here?</div>
-          <div class="chip" onclick="useStarter(this)">Tell me about a challenge you overcame</div>
-          <div class="chip" onclick="useStarter(this)">Where do you see yourself in 5 years?</div>
-          <div class="chip" onclick="useStarter(this)">Why are you leaving your current job?</div>
-        </div>
       </div>
     </div>
 
@@ -218,13 +214,28 @@ select.sidebar-input{cursor:pointer}
       </div>
     </div>
 
+    <!-- QUICK REFERENCE CHIPS — always visible -->
+    <div class="chips-bar">
+      <div class="chips-label">Quick questions</div>
+      <div class="chips-row">
+        <div class="chip" onclick="useStarter(this)">Tell me about yourself</div>
+        <div class="chip" onclick="useStarter(this)">What's your greatest weakness?</div>
+        <div class="chip" onclick="useStarter(this)">Why do you want to work here?</div>
+        <div class="chip" onclick="useStarter(this)">Tell me about a challenge you overcame</div>
+        <div class="chip" onclick="useStarter(this)">Where do you see yourself in 5 years?</div>
+        <div class="chip" onclick="useStarter(this)">Why are you leaving your current job?</div>
+      </div>
+    </div>
+
     <div class="input-bar">
-      <div class="input-wrap">
-        <textarea id="questionInput" placeholder="Type the interviewer's question here... or tap the mic to speak" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-        <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="🎤 Voice input — works best in Chrome or Edge. Not supported in Safari.">🎤</button>
+      <div class="input-row">
+        <div class="input-wrap">
+          <textarea id="questionInput" placeholder="Type the interviewer's question here... or tap the mic to speak" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+          <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="🎤 Voice input — works best in Chrome or Edge. Not supported in Safari.">🎤</button>
+        </div>
+        <button class="send-btn" id="sendBtn" onclick="sendQuestion()">Coach me →</button>
       </div>
       <div class="safari-note">🎤 Voice input works best in Chrome or Edge — not currently supported in Safari</div>
-      <button class="send-btn" id="sendBtn" onclick="sendQuestion()">Coach me →</button>
     </div>
   </div>
 
