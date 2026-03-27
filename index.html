@@ -112,7 +112,8 @@ nav.scrolled { background: rgba(6,6,13,0.97); border-color: var(--b2); }
   display: flex; align-items: center; gap: 10px;
 }
 .btn-ghost {
-  padding: 8px 20px;
+  height: 38px;
+  padding: 0 20px;
   border: 1px solid var(--b2);
   border-radius: 8px;
   background: transparent;
@@ -121,10 +122,12 @@ nav.scrolled { background: rgba(6,6,13,0.97); border-color: var(--b2); }
   font-size: 14px; font-weight: 500;
   cursor: pointer; text-decoration: none;
   transition: all 0.2s;
+  display: inline-flex; align-items: center;
 }
 .btn-ghost:hover { border-color: var(--b3); color: var(--tx); }
 .btn-primary {
-  padding: 9px 22px;
+  height: 38px;
+  padding: 0 22px;
   border: none;
   border-radius: 8px;
   background: var(--gold);
@@ -134,6 +137,7 @@ nav.scrolled { background: rgba(6,6,13,0.97); border-color: var(--b2); }
   cursor: pointer; text-decoration: none;
   transition: all 0.2s;
   letter-spacing: 0.2px;
+  display: inline-flex; align-items: center;
 }
 .btn-primary:hover { background: var(--gold2); transform: translateY(-1px); }
 
@@ -1002,10 +1006,10 @@ footer {
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#faq">FAQ</a></li>
   </ul>
-  <div class="nav-cta" style="align-items:flex-start">
-    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-      <a href="/login.html" class="btn-ghost">Log in</a>
-      <a href="#" id="logoutBtn" onclick="handleLogout(event)" style="display:none;font-size:11px;color:rgba(255,255,255,0.3);text-decoration:underline;text-align:center;cursor:pointer;margin-top:2px">Log out</a>
+  <div class="nav-cta" style="align-items:center">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+      <a href="/login.html" class="btn-ghost" style="display:flex;align-items:center">Log in</a>
+      <a href="#" id="logoutBtn" onclick="handleLogout(event)" style="display:none;font-size:11px;color:rgba(255,255,255,0.3);text-decoration:underline;text-align:center;cursor:pointer">Log out</a>
     </div>
     <a href="/login.html" class="btn-primary">Try free →</a>
   </div>
@@ -1035,7 +1039,7 @@ footer {
   </div>
 
   <div class="hero-actions">
-    <a href="/login.html" class="btn-hero">Try the live coach free →</a>
+    <a href="/prept_v2.html" class="btn-hero">Try the live coach free →</a>
     <a href="#how" class="btn-hero-ghost">See how it works ↓</a>
   </div>
 
@@ -1108,7 +1112,7 @@ footer {
         <div class="live-step"><div class="ls-num">3</div><div class="ls-text"><strong>Your coached answer appears in under 3 seconds.</strong> STAR-structured for behavioral questions. Delivery tips included. Speak it naturally — it sounds like you.</div></div>
         <div class="live-step"><div class="ls-num">4</div><div class="ls-text"><strong>After the call, get your full debrief.</strong> Performance score, strengths, improvements, and a personalized thank-you email ready to send.</div></div>
       </div>
-      <a href="/login.html" class="live-cta">Try PREPT AI Live free →</a>
+      <a href="/prept_v2.html" class="live-cta">Try PREPT AI Live free →</a>
     </div>
     <div class="live-demo">
       <div class="demo-float-1">⚡ Answer in 2.4 seconds</div>
@@ -1615,7 +1619,7 @@ footer {
     <h2 class="cta-title">Your next offer is<br><span class="gold">one interview away.</span></h2>
     <p class="cta-sub">Start free. No credit card. Open PREPT AI Live in your next interview.</p>
     <div class="cta-actions">
-      <a href="/login.html" class="btn-hero">Try PREPT AI Live free →</a>
+      <a href="/prept_v2.html" class="btn-hero">Try PREPT AI Live free →</a>
     </div>
     <div style="margin-top:16px;font-size:13px;color:var(--tx3)">
       <span style="color:#45de7a">●</span> &nbsp;Free tier always available &nbsp;·&nbsp; Upgrade only when you see the value
@@ -1785,7 +1789,7 @@ function animateCounter(el, target, suffix = '') {
         // Replace anchor with a span so it's not clickable
         const span = document.createElement('span');
         span.textContent = greet + ', ' + firstName + ' ✓';
-        span.style.cssText = 'background:rgba(69,222,122,0.12);color:#45de7a;border:1px solid rgba(69,222,122,0.25);padding:8px 18px;border-radius:8px;font-weight:600;font-size:13px;cursor:default;display:inline-block';
+        span.style.cssText = 'background:rgba(69,222,122,0.12);color:#45de7a;border:1px solid rgba(69,222,122,0.25);padding:0 18px;border-radius:8px;font-weight:600;font-size:13px;cursor:default;display:inline-flex;align-items:center;height:38px';
         btn.parentNode.replaceChild(span, btn);
       }
     });
