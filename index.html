@@ -109,7 +109,7 @@ nav.scrolled { background: rgba(6,6,13,0.97); border-color: var(--b2); }
 }
 .nav-links a:hover { color: var(--tx); }
 .nav-cta {
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: nowrap;
 }
 .btn-ghost {
   height: 38px;
@@ -1006,10 +1006,10 @@ footer {
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#faq">FAQ</a></li>
   </ul>
-  <div class="nav-cta" style="align-items:center">
-    <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
-      <a href="/login.html" class="btn-ghost" style="display:flex;align-items:center">Log in</a>
-      <a href="#" id="logoutBtn" onclick="handleLogout(event)" style="display:none;font-size:11px;color:rgba(255,255,255,0.3);text-decoration:underline;text-align:center;cursor:pointer">Log out</a>
+  <div class="nav-cta">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+      <a href="/login.html" class="btn-ghost">Log in</a>
+      <a href="#" id="logoutBtn" onclick="handleLogout(event)" style="display:none;font-size:11px;color:rgba(255,255,255,0.3);text-decoration:underline;cursor:pointer;line-height:1;white-space:nowrap">Log out</a>
     </div>
     <a href="/login.html" class="btn-primary">Try free →</a>
   </div>
@@ -1789,8 +1789,14 @@ function animateCounter(el, target, suffix = '') {
         // Replace anchor with a span so it's not clickable
         const span = document.createElement('span');
         span.textContent = greet + ', ' + firstName + ' ✓';
-        span.style.cssText = 'background:rgba(69,222,122,0.12);color:#45de7a;border:1px solid rgba(69,222,122,0.25);padding:0 18px;border-radius:8px;font-weight:600;font-size:13px;cursor:default;display:inline-flex;align-items:center;height:38px';
+        span.style.cssText = 'background:rgba(69,222,122,0.12);color:#45de7a;border:1px solid rgba(69,222,122,0.25);padding:0 18px;border-radius:8px;font-weight:600;font-size:13px;cursor:default;display:inline-flex;align-items:center;height:38px;box-sizing:border-box';
         btn.parentNode.replaceChild(span, btn);
+        // Make the wrapper div use center alignment so span aligns with Try free
+        const wrapper = span.parentNode;
+        if (wrapper) {
+          wrapper.style.alignItems = 'center';
+          wrapper.style.justifyContent = 'center';
+        }
       }
     });
 
