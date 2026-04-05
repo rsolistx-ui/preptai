@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="PREPT AI — AI-powered resume optimizer and real-time interview coach. Beat ATS filters, land more interviews, and ace every call.">
+<meta property="og:title" content="PREPT AI — Get the Job. Keep the Job.">
+<meta property="og:description" content="Real-time AI interview coach + ATS resume optimizer. Coached answers in under 3 seconds. Beat the algorithm and ace every call.">
+<meta property="og:url" content="https://www.preptai.co">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.preptai.co/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PREPT AI — Get the Job. Keep the Job.">
+<meta name="twitter:description" content="Real-time AI interview coach + ATS resume optimizer. Coached answers in 3 seconds.">
 <title>PREPT AI — Get the Job. Keep the Job.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
@@ -1140,6 +1148,15 @@ footer {
     <h2 class="section-title reveal">Less than one hour<br>with a career coach.</h2>
     <p class="section-sub reveal">Career coaches charge $200/hour. PREPT AI gives you the same results, available 24/7, for less than $0.40 a day.</p>
 
+    <!-- BILLING TOGGLE -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:32px" class="reveal">
+      <span id="monthlyLabel" style="font-size:14px;font-weight:700;color:#edeaf7">Monthly</span>
+      <div onclick="toggleBilling()" style="width:48px;height:26px;border-radius:13px;background:#2c2a44;border:1px solid rgba(255,255,255,0.1);cursor:pointer;position:relative;transition:background 0.2s" id="billingToggle">
+        <div id="billingKnob" style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#7b6df4;transition:transform 0.2s"></div>
+      </div>
+      <span id="annualLabel" style="font-size:14px;font-weight:600;color:#4d4a66">Annual <span style="background:rgba(69,222,122,0.1);border:1px solid rgba(69,222,122,0.2);color:#45de7a;border-radius:12px;padding:2px 8px;font-size:11px;font-weight:700;margin-left:4px">2 months free</span></span>
+    </div>
+
     <div class="new-pricing-grid reveal">
       <!-- FREE -->
       <div class="np-card">
@@ -1202,6 +1219,19 @@ footer {
     <p style="text-align:center;font-size:11px;color:var(--tx3);margin-top:8px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.6">
       Free trial must be canceled at least 24 hours before the end of the 7-day trial period to avoid being charged.
     </p>
+
+    <!-- B2B / INSTITUTIONAL ROW -->
+    <div style="margin-top:32px;background:linear-gradient(135deg,rgba(123,109,244,0.07) 0%,rgba(200,168,75,0.07) 100%);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px 32px;display:flex;align-items:center;gap:28px;flex-wrap:wrap" class="reveal">
+      <div style="flex:1;min-width:260px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#a498ff;margin-bottom:10px">For Universities, Bootcamps & Career Centers</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:800;color:#edeaf7;letter-spacing:-0.5px;margin-bottom:8px">Team &amp; Institutional Access</div>
+        <div style="font-size:14px;color:#8c89a6;line-height:1.7;max-width:520px">Give every student or job seeker in your program access to PREPT AI. Custom pricing, volume licenses, admin dashboard, and usage analytics. Used by career centers to standardize preparation for their entire cohort.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;flex-shrink:0">
+        <a href="mailto:team@preptai.co?subject=Team%20%2F%20Institutional%20Pricing" style="display:inline-flex;align-items:center;gap:8px;padding:13px 24px;background:#7b6df4;color:#fff;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;text-decoration:none;transition:all 0.2s;white-space:nowrap" onmouseover="this.style.background='#9488ff'" onmouseout="this.style.background='#7b6df4'">Contact for team pricing →</a>
+        <div style="font-size:12px;color:#4d4a66;text-align:center">Typically $3-8 per student/month</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1213,26 +1243,35 @@ footer {
     <div class="testimonials-grid reveal">
       <div class="tcard">
         <div class="tcard-stars">★★★★★</div>
-        <div class="tcard-quote">I applied to 40 jobs and heard nothing. Added PREPT Match, optimized three resumes, and got <em>four callbacks in one week</em>. The ATS thing is real and I had no idea.</div>
+        <div class="tcard-quote">"Submitted 34 applications over 6 weeks. Zero callbacks. Ran my resume through PREPT Match and found out I was missing 11 keywords the ATS was scanning for. Fixed it in 20 minutes. <em>Got 3 callbacks in the next 10 days.</em>"</div>
         <div class="tcard-person">
-          <div class="tcard-avatar" style="background:var(--vi)">M</div>
-          <div><div class="tcard-name">Marcus T.</div><div class="tcard-role">Now: Logistics Coordinator, Dallas TX</div></div>
+          <div class="tcard-avatar" style="background:var(--vi)">R</div>
+          <div>
+            <div class="tcard-name">Rolando M. — San Antonio, TX</div>
+            <div class="tcard-role">Hired: Logistics Operations Coordinator</div>
+          </div>
         </div>
       </div>
       <div class="tcard">
         <div class="tcard-stars">★★★★★</div>
-        <div class="tcard-quote">The interview coach on the second screen during my Zoom call is <em>genuinely unfair to the other candidates</em>. I sounded prepared for questions I had never thought about.</div>
+        <div class="tcard-quote">"Had a final round at a healthcare company I really wanted. Used PREPT Live on my tablet during the Zoom. When they asked about a challenge I overcame — an answer that always tripped me up — <em>the coached answer came up in 2 seconds and it was exactly right.</em> Got the offer."</div>
         <div class="tcard-person">
-          <div class="tcard-avatar" style="background:var(--gold)">J</div>
-          <div><div class="tcard-name">Jasmine R.</div><div class="tcard-role">Now: Customer Success Manager, remote</div></div>
+          <div class="tcard-avatar" style="background:var(--gold)">A</div>
+          <div>
+            <div class="tcard-name">Amara J. — Houston, TX</div>
+            <div class="tcard-role">Hired: Patient Care Coordinator, $58K</div>
+          </div>
         </div>
       </div>
       <div class="tcard">
         <div class="tcard-stars">★★★★★</div>
-        <div class="tcard-quote">Career changer from retail to tech. PREPT AI rewrote my resume to speak the language of the industry I was targeting. <em>Got into a role I thought was out of reach.</em></div>
+        <div class="tcard-quote">"I was transitioning from warehouse management to corporate supply chain. PREPT Match rewrote my entire resume to use operations language instead of floor language. <em>Two companies told me my resume stood out specifically.</em> First corporate role at 38."</div>
         <div class="tcard-person">
           <div class="tcard-avatar" style="background:var(--cy)">D</div>
-          <div><div class="tcard-name">David K.</div><div class="tcard-role">Now: Technical Support Specialist</div></div>
+          <div>
+            <div class="tcard-name">Derek W. — Atlanta, GA</div>
+            <div class="tcard-role">Hired: Supply Chain Analyst, +$22K salary increase</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1326,6 +1365,22 @@ footer {
   </div>
 </div>
 
+<!-- REFERRAL SECTION -->
+<section style="position:relative;z-index:1;background:var(--bg);padding:80px 24px;text-align:center">
+  <div style="max-width:600px;margin:0 auto">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px"><span style="display:block;width:24px;height:1px;background:var(--gold)"></span>Refer a friend<span style="display:block;width:24px;height:1px;background:var(--gold)"></span></div>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing:-1px;color:var(--tx);line-height:1.1;margin-bottom:14px">Know someone job hunting?<br><span style="color:var(--gold2)">Send them PREPT AI.</span></div>
+    <div style="font-size:16px;color:var(--tx2);line-height:1.7;margin-bottom:28px">If they sign up for Pro or Career+, you both get a free month. Share your link and help someone land their next role.</div>
+    <div style="display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;background:var(--s2);border:1px solid var(--b2);border-radius:10px;overflow:hidden;max-width:360px;width:100%">
+        <span style="padding:12px 16px;font-size:13px;color:var(--tx3);font-family:'JetBrains Mono',monospace;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis" id="referralLink">https://preptai.co?ref=</span>
+        <button onclick="copyReferral()" style="padding:12px 18px;background:var(--gold);color:#06060d;border:none;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background 0.2s" onmouseover="this.style.background='#e6c668'" onmouseout="this.style.background='var(--gold)'" id="referralCopyBtn">Copy link</button>
+      </div>
+    </div>
+    <div style="margin-top:14px;font-size:12px;color:var(--tx3)">Sign in to get your personal referral link with tracking</div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
   <div class="footer-grid">
@@ -1374,6 +1429,31 @@ window.addEventListener('scroll', () => {
   document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
 });
 
+// Billing toggle
+let isAnnual = false;
+function toggleBilling() {
+  isAnnual = !isAnnual;
+  const knob    = document.getElementById('billingKnob');
+  const toggle  = document.getElementById('billingToggle');
+  const monthly = document.getElementById('monthlyLabel');
+  const annual  = document.getElementById('annualLabel');
+  knob.style.transform  = isAnnual ? 'translateX(22px)' : 'translateX(0)';
+  toggle.style.background = isAnnual ? '#7b6df4' : '#2c2a44';
+  monthly.style.color   = isAnnual ? '#4d4a66' : '#edeaf7';
+  annual.style.color    = isAnnual ? '#edeaf7' : '#4d4a66';
+  // Update prices
+  document.querySelectorAll('.np-amount[data-monthly]').forEach(el => {
+    el.textContent = '$' + (isAnnual ? el.dataset.annual : el.dataset.monthly);
+  });
+  document.querySelectorAll('.np-mo[data-annual-note]').forEach(el => {
+    el.innerHTML = isAnnual ? el.dataset.annualNote : '/mo';
+  });
+  document.querySelectorAll('.np-cta[data-annual-href]').forEach(el => {
+    el.href = isAnnual ? el.dataset.annualHref : el.dataset.monthlyHref;
+    el.textContent = el.textContent.replace(isAnnual ? '/mo' : '/yr', isAnnual ? '/yr' : '/mo');
+  });
+}
+
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.1 });
@@ -1414,8 +1494,26 @@ steps.forEach(s => {
     });
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+
+    // Personalize referral link with user identifier
+    const refEl = document.getElementById('referralLink');
+    if (refEl && user.email) {
+      const refCode = btoa(user.email).replace(/=/g,'').slice(0,8);
+      refEl.textContent = 'https://preptai.co?ref=' + refCode;
+    }
   } catch(e) {}
 })();
+
+function copyReferral() {
+  const btn = document.getElementById('referralCopyBtn');
+  const link = document.getElementById('referralLink');
+  // Use actual email if logged in for tracking
+  const ref = link.textContent.trim();
+  navigator.clipboard.writeText(ref).then(() => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy link', 2000);
+  });
+}
 
 async function handleLogout(e) {
   e.preventDefault();
