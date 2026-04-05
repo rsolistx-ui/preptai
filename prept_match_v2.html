@@ -400,8 +400,16 @@ footer span{color:var(--gold);font-weight:600}
 
 <div class="page" id="pageTracker">
   <div class="tracker-wrap">
+    <div id="trackerSyncBanner" style="display:none;background:rgba(123,109,244,0.07);border:1px solid rgba(123,109,244,0.2);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:#a498ff;display:flex;align-items:center;gap:10px">
+      <span>🔗</span>
+      <span>Sign in to sync your tracker across all your devices. <a href="/login.html" style="color:#7b6df4;font-weight:600">Sign in →</a></span>
+      <button onclick="this.parentElement.style.display='none'" style="margin-left:auto;background:none;border:none;color:#4d4a66;cursor:pointer;font-size:16px">×</button>
+    </div>
     <div class="tracker-hdr">
-      <div><div class="tracker-title">Application Tracker</div><div class="tracker-sub">Track every application. Never miss a follow-up.</div></div>
+      <div>
+        <div class="tracker-title">Application Tracker</div>
+        <div class="tracker-sub" id="trackerSyncStatus">Track every application. Never miss a follow-up.</div>
+      </div>
       <button class="add-app-btn" onclick="openAddModal()">+ Add Application</button>
     </div>
     <div class="tracker-stats" id="trackerStats"></div>
@@ -439,7 +447,72 @@ footer span{color:var(--gold);font-weight:600}
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let resumeContent = '', jobContent = '', analysis = null, coverLetter = '';
 let apps = [];
-try { apps = JSON.parse(localStorage.getItem('prept_apps') || '[]'); } catch(e) {}
+let _sbMatchClient = null;
+
+/*
+  SUPABASE TABLE SETUP — run this SQL once in your Supabase SQL Editor:
+  ─────────────────────────────────────────────────────────────────────
+  create table if not exists user_tracker (
+    email text primary key,
+    applications jsonb default '[]'::jsonb,
+    updated_at timestamptz default now()
+  );
+  alter table user_tracker enable row level security;
+  create policy "Allow all" on user_tracker for all using (true) with check (true);
+  ─────────────────────────────────────────────────────────────────────
+*/
+
+function getSBMatch() {
+  if (!_sbMatchClient) {
+    const { createClient } = supabase;
+    _sbMatchClient = createClient(
+      'https://lfxfwhitegsjeowlcvqk.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeGZ3aGl0ZWdzamVvd2xjdnFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyODM3ODMsImV4cCI6MjA4OTg1OTc4M30.f67zZLrSbaLbTgWZtvx2AIr4aCGVRxuynEFm1_CKvWs'
+    );
+  }
+  return _sbMatchClient;
+}
+
+async function loadAppsFromCloud() {
+  // Try localStorage first for speed
+  try { apps = JSON.parse(localStorage.getItem('prept_apps') || '[]'); } catch(e) { apps = []; }
+
+  // Then sync from Supabase if logged in
+  if (userEmail) {
+    try {
+      const sb = getSBMatch();
+      const { data, error } = await sb
+        .from('user_tracker')
+        .select('applications')
+        .eq('email', userEmail)
+        .single();
+      if (!error && data?.applications && Array.isArray(data.applications)) {
+        // Merge: cloud wins for conflicts (cloud is source of truth)
+        apps = data.applications;
+        localStorage.setItem('prept_apps', JSON.stringify(apps));
+      }
+    } catch(e) {
+      // Supabase unavailable — local only is fine
+    }
+  }
+}
+
+async function saveAppsToCloud() {
+  localStorage.setItem('prept_apps', JSON.stringify(apps));
+  loadAppsFromCloud().then(() => updTrackerBadge());
+  if (userEmail) {
+    try {
+      const sb = getSBMatch();
+      await sb.from('user_tracker').upsert({
+        email: userEmail,
+        applications: apps,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'email' });
+    } catch(e) {
+      // Silent fail — local save already done
+    }
+  }
+}
 
 // ── SUPABASE AUTH (for user plan) ─────────────────────────────────────────────
 const SUPABASE_URL      = 'https://lfxfwhitegsjeowlcvqk.supabase.co';
@@ -467,7 +540,10 @@ function navTo(page) {
   document.getElementById('navOptimize').classList.toggle('on', page === 'optimize');
   const nt = document.getElementById('navTracker');
   nt.classList.remove('on','tracker-on');
-  if (page === 'tracker') { nt.classList.add('tracker-on'); renderTracker(); }
+  if (page === 'tracker') {
+    nt.classList.add('tracker-on');
+    loadAppsFromCloud().then(() => renderTracker());
+  }
 }
 
 // ── FILE HANDLING ─────────────────────────────────────────────────────────────
@@ -1015,6 +1091,16 @@ function resetTool() {
 
 // ── APPLICATION TRACKER ───────────────────────────────────────────────────────
 function renderTracker() {
+  // Show sync banner if not logged in
+  const syncBanner = document.getElementById('trackerSyncBanner');
+  const syncStatus = document.getElementById('trackerSyncStatus');
+  if (syncBanner) syncBanner.style.display = userEmail ? 'none' : 'flex';
+  if (syncStatus) {
+    syncStatus.textContent = userEmail
+      ? `Synced to cloud · ${apps.length} application${apps.length !== 1 ? 's' : ''} across all your devices`
+      : 'Track every application. Never miss a follow-up.';
+  }
+
   const stats = {
     total: apps.length,
     interview: apps.filter(a=>a.status==='interview').length,
@@ -1057,7 +1143,7 @@ function renderTracker() {
 
 function updateStatus(idx,val){apps[idx].status=val;saveApps();renderTracker();}
 function deleteApp(idx){if(confirm('Remove this application?')){apps.splice(idx,1);saveApps();renderTracker();}}
-function saveApps(){localStorage.setItem('prept_apps',JSON.stringify(apps));updTrackerBadge();}
+function saveApps(){ saveAppsToCloud(); }
 function updTrackerBadge(){const b=document.getElementById('trackerBadge');if(b)b.textContent=apps.length;}
 
 function openAddModal(){
