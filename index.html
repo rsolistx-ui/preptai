@@ -860,6 +860,11 @@ footer {
 :root.light .form-group input, :root.light .form-group select, :root.light .form-group textarea { color: #0f0f1c; }
 :root.light .tp-logo-text { color: #0f0f1c; }
 :root.light .trust-divider { background: rgba(0,0,0,0.1); }
+:root.light [style*="Used by job seekers"] { color: #6b6882 !important; }
+:root.light [style*="No credit card"] { color: #6b6882 !important; }
+:root.light [style*="Cancel anytime"] { color: #6b6882 !important; }
+:root.light [style*="Less than one coffee"] { color: #0f0f1c !important; }
+:root.light [style*="Final Round AI charges"] { color: #2d2b45 !important; }
 /* Review section */
 :root.light [style*="rgba(0,182,122,0.06)"] h2 { color: #0f0f1c !important; }
 :root.light [style*="rgba(0,182,122,0.06)"] p { color: #2d2b45 !important; }
@@ -997,6 +1002,16 @@ html:not(.light) a[title="TikTok"] { background: rgba(255,255,255,0.04) !importa
   <div class="hero-actions">
     <a href="/prept_v2.html" class="btn-hero">Try the live coach free →</a>
     <a href="/prept_match_v2.html" class="btn-hero-ghost" style="border-color:rgba(200,168,75,0.35);color:#e6c668">Optimize my resume →</a>
+  </div>
+
+  <!-- Hero social proof trust line -->
+  <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;margin-bottom:8px;flex-wrap:wrap">
+    <span style="color:#45de7a;font-size:14px;letter-spacing:1px">★★★★★</span>
+    <span style="font-size:13px;color:#8a87a0">Used by job seekers across 16 industries</span>
+    <span style="color:#2c2a44">·</span>
+    <span style="font-size:13px;color:#8a87a0">No credit card required</span>
+    <span style="color:#2c2a44">·</span>
+    <span style="font-size:13px;color:#8a87a0">Cancel anytime</span>
   </div>
 
   <!-- Product labels -->
@@ -1685,6 +1700,14 @@ html:not(.light) a[title="TikTok"] { background: rgba(255,255,255,0.04) !importa
         <div style="font-size:12px;color:#8a87a0;text-align:center">Typically $3-8 per student/month</div>
       </div>
     </div>
+
+    <!-- Pricing objection handler -->
+    <div style="max-width:680px;margin:32px auto 0;text-align:center;padding:0 24px">
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:20px 28px">
+        <div style="font-size:15px;font-weight:700;color:#edeaf7;margin-bottom:8px">Less than one coffee a week.</div>
+        <div style="font-size:14px;color:#8a87a0;line-height:1.7">Final Round AI charges $149/month for interview coaching only. Pro gives you the full career suite ,  interview coach, resume optimizer, cover letter, LinkedIn, salary negotiation, and progress tracking ,  for $12. One interview win covers years of Pro. <span style="color:#e6c668;font-weight:600">The math is simple.</span></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1696,6 +1719,7 @@ html:not(.light) a[title="TikTok"] { background: rgba(255,255,255,0.04) !importa
     <div class="testimonials-grid reveal">
       <div class="tcard">
         <div class="tcard-stars">★★★★★</div>
+        <div style="width:44px;height:44px;border-radius:50%;background:#e6c668;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;margin-bottom:12px">RM</div>
         <div class="tcard-quote">"Submitted 34 applications over 6 weeks. Zero callbacks. Ran my resume through PREPT Match and found out I was missing 11 keywords the ATS was scanning for. Fixed it in 20 minutes. <em>Got 3 callbacks in the next 10 days.</em>"</div>
         <div class="tcard-person">
           <div class="tcard-avatar" style="background:var(--vi)">R</div>
@@ -1707,6 +1731,7 @@ html:not(.light) a[title="TikTok"] { background: rgba(255,255,255,0.04) !importa
       </div>
       <div class="tcard">
         <div class="tcard-stars">★★★★★</div>
+        <div style="width:44px;height:44px;border-radius:50%;background:#45de7a;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;margin-bottom:12px">AJ</div>
         <div class="tcard-quote">"Had a final round at a healthcare company I really wanted. Used PREPT Live on my tablet during the Zoom. When they asked about a challenge I overcame an answer that always tripped me up <em>the coached answer came up in 2 seconds and it was exactly right.</em> Got the offer."</div>
         <div class="tcard-person">
           <div class="tcard-avatar" style="background:var(--gold)">A</div>
@@ -1718,6 +1743,7 @@ html:not(.light) a[title="TikTok"] { background: rgba(255,255,255,0.04) !importa
       </div>
       <div class="tcard">
         <div class="tcard-stars">★★★★★</div>
+        <div style="width:44px;height:44px;border-radius:50%;background:#45de7a;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;margin-bottom:12px">DW</div>
         <div class="tcard-quote">"I was transitioning from warehouse management to corporate supply chain. PREPT Match rewrote my entire resume to use operations language instead of floor language. <em>Two companies told me my resume stood out specifically.</em> First corporate role at 38."</div>
         <div class="tcard-person">
           <div class="tcard-avatar" style="background:var(--cy)">D</div>
@@ -1798,6 +1824,38 @@ html:not(.light) a[title="TikTok"] { background: rgba(255,255,255,0.04) !importa
         <div class="faq-q" onclick="toggleFaq(this)">What sectors does PREPT Live cover?</div>
         <div class="faq-a">16 sectors currently: General, Technology, Healthcare, Legal, Finance, Sales, Real Estate, Property Management, Retail, Logistics, Education, Hospitality, Customer Service, Skilled Trades, Admin/Office, and Remote Work. Within each sector you can specify your exact job title for even more targeted coaching.</div>
       </div>
+        <div class="faq-item">
+          <div class="faq-q">Can I use AI assistance during a live job interview?</div>
+          <div class="faq-a">Yes. Using notes, research, and reference material during an interview is standard practice. Interviewers use scoring rubrics and question scripts themselves. PREPT AI helps you articulate your genuine qualifications clearly and confidently. You are not fabricating experience ,  you are communicating it better. Phone Companion Mode runs on a separate physical device, which is invisible to any screen sharing software.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Is PREPT AI detectable during a Zoom, Teams, or Meet interview?</div>
+          <div class="faq-a">No. Phone Companion Mode runs on your physical phone placed beside your laptop. No screen sharing software, proctoring tool, or browser extension can detect a separate physical device. It is physically invisible by definition. If you use it on a second monitor or browser tab, that is your choice ,  but the phone is undetectable in all circumstances.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What is the difference between Pro and Career+?</div>
+          <div class="faq-a">Pro ($12/mo) includes everything: unlimited live coaching, ATS resume optimizer, cover letter generator, LinkedIn optimizer, mock interviews, progress tracking, filler word detection, and application tracker. Career+ ($24/mo) adds three advanced features on top: salary negotiation coaching with a word-for-word counter-offer script, Duo Mode (invite a coach or mentor to see your questions live), and one-way video interview coach for HireVue-style prep.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">How do I optimize my resume for ATS in 2026?</div>
+          <div class="faq-a">Paste your resume and the job description into PREPT AI Match. It scores your match from 0-100, identifies every missing keyword the ATS is scanning for, rewrites your summary and bullet points using the right language, and shows your projected score after optimization. Most users go from a failing score to 80+ in under 20 minutes. The most common mistake is using the wrong job title ,  if the posting says "Logistics Coordinator" and your resume says "Logistics Specialist," you get filtered out automatically.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Does PREPT AI work on iPhone, Android, Mac, and Windows?</div>
+          <div class="faq-a">Yes. PREPT AI runs entirely in your web browser ,  no download or install required. It works on Chrome and Edge on any device. For Phone Companion Mode during interviews, iOS and Android are both fully supported. Safari on iPhone has limited Web Speech API support, so Chrome on iPhone or any Android browser is recommended for the live coach.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">How does salary negotiation coaching work?</div>
+          <div class="faq-a">Enter your job offer, role, location, and years of experience. PREPT AI gives you a specific counter-offer range based on compensation data, a word-for-word script to deliver it, and three power phrases that shift the conversation in your favor. Career+ feature. The average user negotiates $8,000-$22,000 more than their initial offer when they go in with a specific number and a script rather than a vague ask.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What is STAR format and why does it matter?</div>
+          <div class="faq-a">STAR stands for Situation, Task, Action, Result. It is the structure that trained interviewers are explicitly scoring your answers against. Every behavioral question ,  "tell me about a time you," "describe a situation where you" ,  is designed to elicit a STAR response. PREPT AI structures every coached answer in STAR format automatically so your answers hit every point an interviewer is looking for, even under pressure.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What is a one-way video interview and how does PREPT AI help?</div>
+          <div class="faq-a">One-way video interviews (HireVue, Spark Hire, Vidyard) ask you to record answers to questions on a deadline ,  no live interviewer. 60% of Fortune 500 companies now screen candidates this way before any human call. PREPT AI's video coach helps you build and rehearse strong answers before you record, so you go in with a memorized, polished response rather than improvising on camera.</div>
+        </div>
     </div>
   </div>
 </section>
