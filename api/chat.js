@@ -677,4 +677,4 @@ export default async function handler(req, res) {
         const sysOverride = body.systemOverride || '';
         systemPrompt = sysOverride || 'You are Jenn, PREPT AI support assistant. Be warm, professional, and concise. Answer in 2-3 sentences.';
         userMsg = cleanMessage;
-        maxTok = 300;
+        maxTok = 600;
