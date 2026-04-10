@@ -1260,7 +1260,7 @@ footer {
     <div class="new-pricing-grid reveal">
       <!-- FREE -->
       <div class="np-card">
-        <div class="np-badge-wrap np-empty"><span class="np-badge">placeholder</span></div>
+        <div class="np-badge-wrap np-empty"></div>
         <div class="np-tier">Free</div>
         <div class="np-price"><span class="np-amount">$0</span><span class="np-mo">/mo</span></div>
         <p class="np-desc">See what PREPT AI can do. No card required, no time limit.</p>
@@ -1297,7 +1297,7 @@ footer {
 
       <!-- CAREER+ -->
       <div class="np-card">
-        <div class="np-badge-wrap np-empty"><span class="np-badge">placeholder</span></div>
+        <div class="np-badge-wrap np-empty"></div>
         <div class="np-tier">Career+</div>
         <div class="np-trial-pill np-trial-career" id="careerTrialPill">7-day free trial then $24/mo</div>
         <div class="np-price"><span class="np-amount" data-monthly="24" data-annual="20">$24</span><span class="np-mo" data-annual-note='/mo <span style="font-size:11px;color:#45de7a">(billed $240/yr)</span>'>/mo</span></div>
@@ -1561,7 +1561,7 @@ footer {
       <div class="footer-col-title">Company</div>
       <div class="footer-links">
         <a href="mailto:support@preptai.co?subject=About PREPT AI">About</a>
-        <a href="https://www.preptai.co" title="Blog coming soon" target="_blank" rel="noopener">Blog</a>
+        <a href="/blog-post-1.html">Blog</a>
         <a href="mailto:support@preptai.co">Contact Us</a>
         <a href="mailto:support@preptai.co?subject=Team%20Pricing">Team Pricing</a>
       </div>
@@ -1614,10 +1614,10 @@ function toggleBilling() {
   const proLink    = document.getElementById('proCta');
   const careerLink = document.getElementById('careerCta');
   if (proLink) proLink.href = isAnnual
-    ? 'https://buy.stripe.com/bJe4gAdlkddX92gfLycbC00' // TODO: replace with annual Pro link ($120/yr)
+    ? 'https://buy.stripe.com/bJe4gAdlkddX92gfLycbC00' // Update with annual Pro link when created in Stripe
     : 'https://buy.stripe.com/bJe4gAdlkddX92gfLycbC00';
   if (careerLink) careerLink.href = isAnnual
-    ? 'https://buy.stripe.com/aFa6oI6WWfm5ces56UcbC02' // TODO: replace with annual Career+ link ($240/yr)
+    ? 'https://buy.stripe.com/aFa6oI6WWfm5ces56UcbC02' // Update with annual Career+ link when created in Stripe
     : 'https://buy.stripe.com/aFa6oI6WWfm5ces56UcbC02';
   document.querySelectorAll('.np-mo[data-annual-note]').forEach(el => {
     el.innerHTML = isAnnual ? el.dataset.annualNote : '/mo';
