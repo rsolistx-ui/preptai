@@ -1435,7 +1435,7 @@ footer {
       <div class="np-card np-pro">
         <div class="np-badge-wrap"><span class="np-badge">Most Popular</span></div>
         <div class="np-tier">Pro</div>
-        <div class="np-trial-pill" id="proTrialPill">7-day free trial then $12/mo</div>
+        
         <div class="np-price"><span class="np-amount" data-monthly="12" data-annual="10">$12</span><span class="np-mo" data-annual-note='/mo <span style="font-size:11px;color:#45de7a">(billed $120/yr)</span>'>/mo</span></div>
         <p class="np-desc">Everything you need to land interviews and ace every call. 80% of subscribers live here.</p>
         <ul class="np-features">
@@ -1455,7 +1455,7 @@ footer {
       <div class="np-card">
         <div class="np-badge-wrap np-empty"></div>
         <div class="np-tier">Career+</div>
-        <div class="np-trial-pill np-trial-career" id="careerTrialPill">7-day free trial then $24/mo</div>
+        
         <div class="np-price"><span class="np-amount" data-monthly="24" data-annual="20">$24</span><span class="np-mo" data-annual-note='/mo <span style="font-size:11px;color:#45de7a">(billed $240/yr)</span>'>/mo</span></div>
         <p class="np-desc">For career changers and competitive roles. The full arsenal, nothing held back.</p>
         <ul class="np-features">
@@ -1471,9 +1471,6 @@ footer {
 
     <p style="text-align:center;font-size:13px;color:var(--tx3);margin-top:20px">
       <span style="color:#45de7a">●</span> &nbsp;No contracts &nbsp;·&nbsp; <a href="https://billing.stripe.com/p/login/bJe4gAdlkddX92gfLycbC00" target="_blank" style="color:#b0adc6;text-decoration:underline">Cancel anytime via billing portal</a>
-    </p>
-    <p style="text-align:center;font-size:11px;color:var(--tx3);margin-top:8px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.6">
-      Free trial must be canceled at least 24 hours before the end of the 7-day trial period to avoid being charged. Questions? <a href="mailto:support@preptai.co" style="color:#b0adc6;text-decoration:underline">Email us</a> we actually respond.
     </p>
 
     <!-- B2B / INSTITUTIONAL ROW -->
@@ -1779,13 +1776,10 @@ function toggleBilling() {
     el.innerHTML = isAnnual ? el.dataset.annualNote : '/mo';
   });
   // Update trial pills
-  const proTrial = document.getElementById('proTrialPill');
-  if (proTrial) proTrial.textContent = isAnnual ? '7-day free trial then $120/yr (save $24)' : '7-day free trial then $12/mo';
-  const careerTrial = document.getElementById('careerTrialPill');
-  if (careerTrial) careerTrial.textContent = isAnnual ? '7-day free trial then $240/yr (save $48)' : '7-day free trial then $24/mo';
+
   // Update CTA button text
   const proCta = document.querySelector('.np-cta-pro');
-  if (proCta) proCta.textContent = isAnnual ? 'Start Pro $120/yr →' : 'Start Pro $12/mo →';
+  if (proCta) proCta.textContent = isAnnual ? 'Start Pro $120/yr →' : 'Start Pro →';
   const careerCta = document.querySelector('.np-cta-career');
   if (careerCta) careerCta.textContent = isAnnual ? 'Start Career+ $240/yr →' : 'Start Career+ $24/mo →';
 }
