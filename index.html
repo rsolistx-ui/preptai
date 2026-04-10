@@ -862,6 +862,17 @@ footer {
 :root.light .trust-divider { background: rgba(0,0,0,0.1); }
 :root.light .prod-title { color: #0f0f1c !important; }
 :root.light .prod-desc { color: #2d2b45 !important; }
+/* B2B section */
+:root.light #b2bCard { background: linear-gradient(135deg,rgba(123,109,244,0.06) 0%,rgba(200,168,75,0.05) 100%) !important; border-color: rgba(0,0,0,0.08) !important; }
+:root.light .b2b-eyebrow { color: #5a50c4 !important; }
+:root.light .b2b-title { color: #0f0f1c !important; }
+:root.light .b2b-desc { color: #2d2b45 !important; }
+/* General rule - any hardcoded light text in light mode */
+:root.light [style*="color:#edeaf7"] { color: #0f0f1c !important; }
+:root.light [style*="color:#ccc9e0"] { color: #2d2b45 !important; }
+:root.light [style*="color:#8c89a6"] { color: #3a3858 !important; }
+:root.light [style*="color:#a498ff"]:not(.section-eyebrow):not(.live-badge) { color: #5a50c4 !important; }
+:root.light [style*="color:#b0adc6"] { color: #2d2b45 !important; }
 :root.light #prodCardLive { background: rgba(123,109,244,0.06) !important; }
 :root.light #prodCardMatch { background: rgba(200,168,75,0.06) !important; }
 /* Product cards */
@@ -1610,11 +1621,11 @@ html:not(.light) a[title="TikTok"] { background: rgba(255,255,255,0.04) !importa
     </p>
 
     <!-- B2B / INSTITUTIONAL ROW -->
-    <div style="margin-top:32px;background:linear-gradient(135deg,rgba(123,109,244,0.07) 0%,rgba(200,168,75,0.07) 100%);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px 32px;display:flex;align-items:center;gap:28px;flex-wrap:wrap" class="reveal">
+    <div id="b2bCard" style="margin-top:32px;background:linear-gradient(135deg,rgba(123,109,244,0.07) 0%,rgba(200,168,75,0.07) 100%);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px 32px;display:flex;align-items:center;gap:28px;flex-wrap:wrap" class="reveal">
       <div style="flex:1;min-width:260px">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#a498ff;margin-bottom:10px">For Universities, Bootcamps & Career Centers</div>
-        <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:800;color:#edeaf7;letter-spacing:-0.5px;margin-bottom:8px">Team &amp; Institutional Access</div>
-        <div style="font-size:14px;color:#ccc9e0;line-height:1.7;max-width:520px">Give every student or job seeker in your program access to PREPT AI. Custom pricing, volume licenses, admin dashboard, and usage analytics. Used by career centers to standardize preparation for their entire cohort.</div>
+        <div class="b2b-eyebrow" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#a498ff;margin-bottom:10px">For Universities, Bootcamps & Career Centers</div>
+        <div class="b2b-title" style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:800;color:#edeaf7;letter-spacing:-0.5px;margin-bottom:8px">Team &amp; Institutional Access</div>
+        <div class="b2b-desc" style="font-size:14px;color:#ccc9e0;line-height:1.7;max-width:520px">Give every student or job seeker in your program access to PREPT AI. Custom pricing, volume licenses, admin dashboard, and usage analytics. Used by career centers to standardize preparation for their entire cohort.</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px;flex-shrink:0">
         <a href="mailto:support@preptai.co?subject=Team%20%2F%20Institutional%20Pricing" style="display:inline-flex;align-items:center;gap:8px;padding:13px 24px;background:#7b6df4;color:#fff;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;text-decoration:none;transition:all 0.2s;white-space:nowrap" onmouseover="this.style.background='#9488ff'" onmouseout="this.style.background='#7b6df4'">Contact for team pricing →</a>
