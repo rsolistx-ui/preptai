@@ -860,6 +860,19 @@ footer {
 :root.light .form-group input, :root.light .form-group select, :root.light .form-group textarea { color: #0f0f1c; }
 :root.light .tp-logo-text { color: #0f0f1c; }
 :root.light .trust-divider { background: rgba(0,0,0,0.1); }
+:root.light .prod-title { color: #0f0f1c !important; }
+:root.light .prod-desc { color: #2d2b45 !important; }
+:root.light #prodCardLive { background: rgba(123,109,244,0.06) !important; }
+:root.light #prodCardMatch { background: rgba(200,168,75,0.06) !important; }
+/* Product cards */
+:root.light #prodCardLive,
+:root.light #prodCardMatch { color: #0f0f1c; }
+:root.light #prodCardLive div[style*="color:#edeaf7"],
+:root.light #prodCardMatch div[style*="color:#edeaf7"] { color: #0f0f1c !important; }
+:root.light #prodCardLive div[style*="color:#ccc9e0"],
+:root.light #prodCardMatch div[style*="color:#ccc9e0"] { color: #2d2b45 !important; }
+:root.light #prodCardLive div[style*="color:#8c89a6"],
+:root.light #prodCardMatch div[style*="color:#8c89a6"] { color: #2d2b45 !important; }
 
 </style>
 </head>
@@ -1157,27 +1170,27 @@ footer {
 
     <!-- TWO PRODUCT CARDS -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:56px" class="reveal">
-      <a href="/prept_v2.html" style="text-decoration:none;display:flex;flex-direction:column;gap:14px;background:rgba(123,109,244,0.06);border:1px solid rgba(123,109,244,0.2);border-radius:16px;padding:28px;transition:transform 0.2s,border-color 0.2s" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(123,109,244,0.45)'" onmouseout="this.style.transform='';this.style.borderColor='rgba(123,109,244,0.2)'">
+      <a id="prodCardLive" href="/prept_v2.html" style="text-decoration:none;display:flex;flex-direction:column;gap:14px;background:rgba(123,109,244,0.06);border:1px solid rgba(123,109,244,0.2);border-radius:16px;padding:28px;transition:transform 0.2s,border-color 0.2s" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(123,109,244,0.45)'" onmouseout="this.style.transform='';this.style.borderColor='rgba(123,109,244,0.2)'">
         <div style="display:flex;align-items:center;gap:12px">
           <div style="width:44px;height:44px;border-radius:12px;background:rgba(123,109,244,0.15);border:1px solid rgba(123,109,244,0.25);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🎙</div>
           <div style="flex:1">
-            <div style="font-size:16px;font-weight:700;color:#edeaf7">PREPT AI Live</div>
+            <div class="prod-title" style="font-size:16px;font-weight:700;color:#edeaf7">PREPT AI Live</div>
             <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#7b6df4;margin-top:2px">Real-Time Interview Coach</div>
           </div>
           <div style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:10px;background:rgba(239,95,95,0.1);border:1px solid rgba(239,95,95,0.2);font-size:10px;font-weight:700;color:#ef5f5f;white-space:nowrap;flex-shrink:0"><span style="width:5px;height:5px;border-radius:50%;background:#ef5f5f;animation:pulse-dot 1.2s ease-in-out infinite;display:inline-block"></span>LIVE</div>
         </div>
-        <div style="font-size:14px;color:#ccc9e0;line-height:1.7">Listens to every interview question and feeds you a confident, coached answer in under 3 seconds. Continuous listen mode no tapping required. Works on any video call.</div>
+        <div class="prod-desc" style="font-size:14px;color:#ccc9e0;line-height:1.7">Listens to every interview question and feeds you a confident, coached answer in under 3 seconds. Continuous listen mode no tapping required. Works on any video call.</div>
         <div style="font-size:13px;font-weight:700;color:#a498ff;display:flex;align-items:center;gap:5px">Try Live free →</div>
       </a>
-      <a href="/prept_match_v2.html" style="text-decoration:none;display:flex;flex-direction:column;gap:14px;background:rgba(200,168,75,0.06);border:1px solid rgba(200,168,75,0.2);border-radius:16px;padding:28px;transition:transform 0.2s,border-color 0.2s" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(200,168,75,0.45)'" onmouseout="this.style.transform='';this.style.borderColor='rgba(200,168,75,0.2)'">
+      <a id="prodCardMatch" href="/prept_match_v2.html" style="text-decoration:none;display:flex;flex-direction:column;gap:14px;background:rgba(200,168,75,0.06);border:1px solid rgba(200,168,75,0.2);border-radius:16px;padding:28px;transition:transform 0.2s,border-color 0.2s" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(200,168,75,0.45)'" onmouseout="this.style.transform='';this.style.borderColor='rgba(200,168,75,0.2)'">
         <div style="display:flex;align-items:center;gap:12px">
           <div style="width:44px;height:44px;border-radius:12px;background:rgba(200,168,75,0.12);border:1px solid rgba(200,168,75,0.25);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📄</div>
           <div>
-            <div style="font-size:16px;font-weight:700;color:#edeaf7">PREPT AI Match</div>
+            <div class="prod-title" style="font-size:16px;font-weight:700;color:#edeaf7">PREPT AI Match</div>
             <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#c8a84b;margin-top:2px">ATS Resume Optimizer</div>
           </div>
         </div>
-        <div style="font-size:14px;color:#ccc9e0;line-height:1.7">Scores your resume against any job description, fills in missing keywords, rewrites your summary and bullets, generates a tailored cover letter, and optimizes your LinkedIn profile.</div>
+        <div class="prod-desc" style="font-size:14px;color:#ccc9e0;line-height:1.7">Scores your resume against any job description, fills in missing keywords, rewrites your summary and bullets, generates a tailored cover letter, and optimizes your LinkedIn profile.</div>
         <div style="font-size:13px;font-weight:700;color:#e6c668;display:flex;align-items:center;gap:5px">Optimize my resume →</div>
       </a>
     </div>
