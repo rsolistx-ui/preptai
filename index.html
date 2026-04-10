@@ -867,6 +867,9 @@ footer {
 :root.light [style*="color:#edeaf7"][style*="Bricolage"] { color: #0f0f1c !important; }
 :root.light .prod-title { color: #0f0f1c !important; }
 :root.light .prod-desc { color: #2d2b45 !important; }
+:root.light [style*="rgba(200,168,75,0.08)"] { background: rgba(200,168,75,0.06) !important; }
+:root.light [style*="rgba(200,168,75,0.08)"] div[style*="color:#e6c668"] { color: #c8a84b !important; }
+:root.light [style*="rgba(200,168,75,0.08)"] div[style*="color:#8a87a0"] { color: #6b6882 !important; }
 /* B2B section */
 :root.light #b2bCard { background: linear-gradient(135deg,rgba(123,109,244,0.06) 0%,rgba(200,168,75,0.05) 100%) !important; border-color: rgba(0,0,0,0.08) !important; }
 :root.light .b2b-eyebrow { color: #5a50c4 !important; }
@@ -1600,7 +1603,13 @@ html:not(.light) a[title="TikTok"] { background: rgba(255,255,255,0.04) !importa
           <span id="saveBadge" style="background:rgba(69,222,122,0.15);border:1px solid rgba(69,222,122,0.3);color:#45de7a;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:800;letter-spacing:0.3px">SAVE 17%</span>
         </button>
       </div>
-      <div style="font-size:12px;color:#8a87a0">Switch to annual and get 2 months free</div>
+      <div style="margin-top:10px;display:inline-flex;align-items:center;gap:8px;background:rgba(200,168,75,0.08);border:1px solid rgba(200,168,75,0.2);border-radius:10px;padding:8px 14px">
+        <span style="font-size:16px">🎁</span>
+        <div style="text-align:left">
+          <div style="font-size:13px;font-weight:700;color:#e6c668">Pay for 10 months, get 12</div>
+          <div style="font-size:11px;color:#8a87a0;margin-top:1px">Pro: $120/yr ($10/mo) &nbsp;·&nbsp; Career+: $240/yr ($20/mo) &nbsp;·&nbsp; Billed once annually &nbsp;·&nbsp; Cancel anytime before renewal</div>
+        </div>
+      </div>
     </div>
 
     <div class="new-pricing-grid reveal">
@@ -1997,7 +2006,7 @@ function toggleBilling() {
     ? 'https://buy.stripe.com/bJe4gAdlkddX92gfLycbC00' // Update with annual Pro link when created in Stripe
     : 'https://buy.stripe.com/bJe4gAdlkddX92gfLycbC00';
   if (careerLink) careerLink.href = isAnnual
-    ? 'https://buy.stripe.com/aFa6oI6WWfm5ces56UcbC02' // Update with annual Career+ link when created in Stripe
+    ? 'https://buy.stripe.com/aFaeVe2GGddX0vK7f2cbC01'
     : 'https://buy.stripe.com/aFa6oI6WWfm5ces56UcbC02';
   document.querySelectorAll('.np-mo[data-annual-note]').forEach(el => {
     el.innerHTML = isAnnual ? el.dataset.annualNote : '/mo';
