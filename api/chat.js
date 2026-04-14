@@ -209,7 +209,7 @@ Senior leaders are being evaluated on an entirely different dimension than indiv
 };
 
 // ── MASTER COACHING SYSTEM PROMPT ─────────────────────────────────────────────
-function buildCoachingPrompt(sector, role, company, style, resumeText, jobDescription) {
+function buildCoachingPrompt(sector, role, company, style, resumeText, jobDescription, companyIntel) {
 
   const SECTOR_CONTEXT = {
     'Technology':          'Focus on technical skills, system design, problem-solving, agile/scrum, code quality, and software development lifecycle.',
@@ -244,6 +244,18 @@ ${resumeText}`
 ${jobDescription}`
     : "";
 
+  const intelSection = companyIntel && typeof companyIntel === "object"
+    ? `\n\nVERIFIED COMPANY INTELLIGENCE (use this to make answers feel like the candidate did real research):
+- Industry: ${companyIntel.industry || ""}
+- Size: ${companyIntel.size || ""}
+- Culture: ${companyIntel.culture || ""}
+- Known for: ${companyIntel.knownFor || ""}
+- Interview style: ${companyIntel.interviewStyle || ""}
+- What they look for: ${companyIntel.whatTheyLookFor || ""}
+- Strong talking point: ${companyIntel.talkingPoint || ""}
+${companyIntel.redFlag ? `- Common candidate mistake here: ${companyIntel.redFlag}` : ""}`
+    : "";
+
   return `You are PREPT AI ,  the most advanced interview coaching engine ever built, trained on the intersection of behavioral psychology, hiring science, executive assessment, and communication research.
 
 ═══════════════════════════════════════════════════════════
@@ -257,7 +269,7 @@ CANDIDATE CONTEXT
 Industry: ${sector || "General"}${sectorSection}
 Role: ${role || "Professional mid-to-senior level role"}
 Company: ${company || "not specified"}
-Answer framework: ${STYLE_FRAMEWORKS[style] || STYLE_FRAMEWORKS.star}${resumeSection}${jobSection}
+Answer framework: ${STYLE_FRAMEWORKS[style] || STYLE_FRAMEWORKS.star}${resumeSection}${jobSection}${intelSection}
 
 ═══════════════════════════════════════════════════════════
 THE SCIENCE OF WHAT INTERVIEWERS ACTUALLY EVALUATE
@@ -671,6 +683,53 @@ Score rubric:
 Return ONLY the JSON object. No markdown, no explanation.`;
 }
 
+// ── MOCK ANSWER EVALUATOR (adaptive STAR analysis + model answer + next Q) ────
+function buildMockAnswerPrompt(mockQuestion, userAnswer, sector, role) {
+  return `You are an expert interview coach scoring a candidate's mock interview answer in real time.
+
+Role: ${role || "Professional role"}
+Sector: ${sector || "General"}
+
+The interview question was: "${mockQuestion}"
+
+The candidate answered: "${userAnswer}"
+
+Evaluate the answer and return ONLY this exact JSON (no markdown, no extra text):
+{
+  "starScores": {
+    "S": <integer 0-10, Situation — did they set context clearly?>,
+    "T": <integer 0-10, Task — did they define their specific responsibility?>,
+    "A": <integer 0-10, Action — did they describe specific actions with "I" not "we"?>,
+    "R": <integer 0-10, Result — did they quantify the outcome?>
+  },
+  "weakness": <"S"|"T"|"A"|"R" — the single lowest-scoring component>,
+  "overallScore": <integer 0-100>,
+  "oneLiner": <string — one specific, actionable improvement tip under 20 words>,
+  "modelAnswer": <string — a coached ideal answer for this exact question, 90-120 words, speakable, specific, uses STAR, no placeholder text>,
+  "nextQuestion": <string — one adaptive follow-up that probes the weak component OR a new behavioral question if all scores are above 7. Sound like a real interviewer.>
+}`;
+}
+
+// ── COMPANY RESEARCH (Claude-powered intel for coaching context) ──────────────
+function buildCompanyResearchPrompt(company, role) {
+  return `You are a career research assistant helping a job candidate prepare for an interview.
+
+Company: ${company || "Unknown"}
+Role being applied for: ${role || "Professional role"}
+
+Return ONLY this exact JSON (no markdown, no extra text). Use your knowledge of this company. If you are not confident about specific details, give reasonable general information for a company of this type:
+{
+  "industry": <string — primary industry/sector>,
+  "size": <string — e.g. "50,000+ employees" or "Series B startup (~200 people)">,
+  "culture": <string — 1-2 sentences on work environment and values>,
+  "knownFor": <string — what this company is recognized for in their market>,
+  "interviewStyle": <string — what interview style this company typically uses, e.g. behavioral, case-based, technical>,
+  "whatTheyLookFor": <string — 2-3 specific traits or skills this company consistently prioritizes in candidates>,
+  "talkingPoint": <string — one specific, genuine thing the candidate can mention to show they did their research. Must be real and verifiable.>,
+  "redFlag": <string — one common mistake candidates make when interviewing here, or null if unknown>
+}`;
+}
+
 // ── MAIN HANDLER ──────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "https://www.preptai.co");
@@ -687,10 +746,10 @@ export default async function handler(req, res) {
   const {
     message, mode, userEmail, sector, role, company, style, resumeText, jobDescription,
     location, yearsExp, currentOffer, targetSalary, timeLimit,
-    previousQuestion, userAnswer, answers, systemOverride
+    previousQuestion, userAnswer, answers, systemOverride, companyIntel
   } = req.body;
 
-  const validModes = ["chat","match","followup","thankyou","mockgen","salary","skillsgap","asyncvideo","adaptive","debrief","jenn","coverletter","linkedin"];
+  const validModes = ["chat","match","followup","thankyou","mockgen","salary","skillsgap","asyncvideo","adaptive","debrief","jenn","coverletter","linkedin","mockanswer","company"];
   if (!message || typeof message !== "string") return res.status(400).json({ error: "Message is required" });
   if (!mode || !validModes.includes(mode)) return res.status(400).json({ error: "Invalid mode" });
 
@@ -749,7 +808,7 @@ export default async function handler(req, res) {
   }
 
   // Free utility modes: skip all limit checks and usage logging
-  const freeModes = ["mockgen", "salary", "skillsgap", "asyncvideo", "adaptive", "debrief", "jenn", "coverletter", "linkedin"];
+  const freeModes = ["mockgen", "salary", "skillsgap", "asyncvideo", "adaptive", "debrief", "jenn", "coverletter", "linkedin", "mockanswer", "company"];
   if (freeModes.includes(mode)) {
     try {
       let systemPrompt;
@@ -801,13 +860,28 @@ export default async function handler(req, res) {
         userMsg = cleanMessage;
         maxTok = 300;
       } else if (mode === "coverletter") {
-        systemPrompt = `You are an expert cover letter writer. Write a compelling, human-sounding cover letter that directly connects the candidate's specific achievements to the role's requirements. Never use generic templates. Rules: open with a specific hook (never "I am applying for"), connect top 2-3 requirements to quantified achievements, show genuine company knowledge, close with a confident CTA. 3-4 paragraphs, under 350 words. Sound human, not corporate.`;
+        const intelSnippet = companyIntel && typeof companyIntel === "object"
+          ? `\n\nCOMPANY INTELLIGENCE — use this to make the letter feel specific and researched:\n- Culture: ${companyIntel.culture || ""}\n- What they look for: ${companyIntel.whatTheyLookFor || ""}\n- Talking point: ${companyIntel.talkingPoint || ""}\n- Interview style: ${companyIntel.interviewStyle || ""}`
+          : "";
+        systemPrompt = `You are an expert cover letter writer. Write a compelling, human-sounding cover letter that directly connects the candidate's specific achievements to the role's requirements. Never use generic templates. Rules: open with a specific hook (never "I am applying for"), connect top 2-3 requirements to quantified achievements, show genuine company knowledge, close with a confident CTA. 3-4 paragraphs, under 350 words. Sound human, not corporate.${intelSnippet}`;
         userMsg = cleanMessage;
         maxTok = 700;
       } else if (mode === "linkedin") {
         systemPrompt = `You are a LinkedIn profile optimization expert. Generate optimized LinkedIn profile sections that help candidates get found by recruiters searching for the role. Return ONLY valid JSON with no markdown: {"headline":"optimized headline under 220 chars","about":"compelling About section 250-300 words with \\n paragraph breaks, under 2600 total characters","skills":"comma-separated top 10 skills aligned to the job description"}`;
         userMsg = cleanMessage;
         maxTok = 700;
+      } else if (mode === "mockanswer") {
+        systemPrompt = buildMockAnswerPrompt(
+          (previousQuestion || '').slice(0, 400),
+          (userAnswer      || '').slice(0, 1000),
+          cleanSector, cleanRole
+        );
+        userMsg = "Evaluate the candidate's answer and return the JSON.";
+        maxTok = 800;
+      } else if (mode === "company") {
+        systemPrompt = buildCompanyResearchPrompt(cleanCompany, cleanRole);
+        userMsg = "Return the company research JSON.";
+        maxTok = 600;
       }
 
       // Prompt caching on free-mode system prompts (reduces cost ~80% on repeated calls)
@@ -832,7 +906,7 @@ export default async function handler(req, res) {
   else if (mode === "followup") systemPrompt = buildFollowUpPrompt(cleanSector, cleanRole, cleanCompany, cleanResume, cleanJobDesc);
   else if (mode === "thankyou") systemPrompt = buildThankYouPrompt();
   else if (mode === "mockgen")  systemPrompt = buildMockGenPrompt(cleanSector, cleanRole, cleanCompany, cleanJobDesc);
-  else                          systemPrompt = buildCoachingPrompt(cleanSector, cleanRole, cleanCompany, cleanStyle, cleanResume, cleanJobDesc);
+  else                          systemPrompt = buildCoachingPrompt(cleanSector, cleanRole, cleanCompany, cleanStyle, cleanResume, cleanJobDesc, companyIntel || null);
 
   // ── STREAMING PATH — chat, followup, thankyou (text responses) ───────────────
   const streamModes = ["chat", "followup", "thankyou"];

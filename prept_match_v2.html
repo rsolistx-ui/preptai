@@ -463,6 +463,12 @@ footer span{color:var(--gold);font-weight:600}
             <div class="ordiv">or paste text</div>
             <textarea class="bta" id="resumeText" placeholder="Paste your full resume here contact info, summary, experience, education, skills..." oninput="updateCC('resumeText','rcc')"></textarea>
             <div class="cc" id="rcc">0 characters</div>
+            <!-- RESUME VERSIONING -->
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button onclick="saveResumeVersion()" style="flex:1;padding:7px 10px;background:rgba(123,109,244,0.1);border:1px solid rgba(123,109,244,0.25);color:#a498ff;border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='rgba(123,109,244,0.18)'" onmouseout="this.style.background='rgba(123,109,244,0.1)'">💾 Save version</button>
+              <button onclick="toggleVersionsPanel()" id="versionsToggle" style="padding:7px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);color:#8a87a0;border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s" onmouseover="this.style.color='#edeaf7'" onmouseout="this.style.color='#8a87a0'">📂 Saved</button>
+            </div>
+            <div id="versionsPanel" style="display:none;margin-top:8px"></div>
           </div>
         </div>
         <div class="ucard">
@@ -474,6 +480,12 @@ footer span{color:var(--gold);font-weight:600}
             <textarea class="bta" id="jobText" placeholder="Paste the complete job description title, responsibilities, requirements, preferred qualifications, company overview..." oninput="updateCC('jobText','jcc')" style="min-height:300px;flex:1"></textarea>
             <div class="cc" id="jcc">0 characters</div>
             <div class="pro-tip"><strong style="color:var(--am)">💡 Pro tip:</strong> Copy the entire posting including the company section. ATS systems often pull keywords from the company description, not just the requirements list.</div>
+            <!-- COMPANY RESEARCH IN MATCH PAGE -->
+            <div style="margin-top:10px;display:flex;gap:6px;align-items:center">
+              <input id="matchCompanyInput" placeholder="Company name (for cover letter intel)" type="text" style="flex:1;background:var(--inp-bg,#111120);border:1px solid rgba(255,255,255,0.09);color:#edeaf7;font-family:'Outfit',sans-serif;font-size:12px;padding:7px 10px;border-radius:7px;outline:none" oninput="matchClearIntel()"/>
+              <button onclick="matchResearchCompany()" id="matchResearchBtn" style="padding:7px 11px;background:rgba(56,217,192,0.08);border:1px solid rgba(56,217,192,0.22);color:#38d9c0;font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;border-radius:7px;cursor:pointer;white-space:nowrap">🔍 Research</button>
+            </div>
+            <div id="matchIntelCard" style="display:none;margin-top:6px;padding:10px 12px;background:rgba(56,217,192,0.05);border:1px solid rgba(56,217,192,0.18);border-radius:8px;font-size:12px;color:#ccc9e0;line-height:1.6"></div>
           </div>
         </div>
       </div>
@@ -973,7 +985,7 @@ Return ONLY the cover letter text, no subject line, no labels.`;
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: prompt, mode: 'coverletter', userEmail: userEmail || null })
+      body: JSON.stringify({ message: prompt, mode: 'coverletter', userEmail: userEmail || null, companyIntel: window.matchCompanyIntel || null, company: document.getElementById('matchCompanyInput')?.value?.trim() || '' })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Something went wrong');
@@ -1007,7 +1019,7 @@ Return ONLY this JSON (no markdown):
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: prompt, mode: 'linkedin', userEmail: userEmail || null })
+      body: JSON.stringify({ message: prompt, mode: 'linkedin', userEmail: userEmail || null, companyIntel: window.matchCompanyIntel || null, company: document.getElementById('matchCompanyInput')?.value?.trim() || '' })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Something went wrong');
@@ -1491,6 +1503,122 @@ function renderAnalysisHistory() {
 
 updTrackerBadge();
 renderAnalysisHistory();
+renderVersionsBadge();
+
+// ── COMPANY RESEARCH (match page) ────────────────────────────────────────────
+window.matchCompanyIntel = null;
+
+function matchClearIntel() {
+  window.matchCompanyIntel = null;
+  const card = document.getElementById('matchIntelCard');
+  if (card) { card.style.display = 'none'; card.innerHTML = ''; }
+}
+
+async function matchResearchCompany() {
+  const company = document.getElementById('matchCompanyInput')?.value?.trim();
+  if (!company) { showToast('Enter a company name first'); return; }
+  const btn  = document.getElementById('matchResearchBtn');
+  const card = document.getElementById('matchIntelCard');
+  btn.disabled = true; btn.textContent = '⏳';
+  card.style.display = 'block';
+  card.innerHTML = '<span style="color:#8a87a0">Researching ' + company + '...</span>';
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Research this company.', mode: 'company', company, userEmail: userEmail || null })
+    });
+    if (!res.ok) throw new Error('API error');
+    const d = await res.json();
+    const intel = JSON.parse((d.answer || '').replace(/```json|```/g,'').trim());
+    window.matchCompanyIntel = intel;
+    card.innerHTML = `<strong style="color:#38d9c0">${company}</strong> &middot; ${intel.industry || ''} &middot; ${intel.size || ''}<br>
+      <span style="color:#e6c668">Interview style:</span> ${intel.interviewStyle || '—'}<br>
+      <span style="color:#e6c668">What they look for:</span> ${intel.whatTheyLookFor || '—'}<br>
+      <span style="font-size:11px;color:#8a87a0">Intel injected into cover letter &amp; LinkedIn optimizer</span>`;
+    showToast('Company intel loaded');
+  } catch(e) {
+    card.innerHTML = '<span style="color:#ef5f5f">Could not fetch. Try again.</span>';
+    window.matchCompanyIntel = null;
+  }
+  btn.disabled = false; btn.textContent = '🔍 Research';
+}
+
+// ── RESUME VERSIONING (localStorage, up to 5 versions) ───────────────────────
+function getResumeVersions() {
+  try { return JSON.parse(localStorage.getItem('preptai_resume_versions') || '[]'); } catch(e) { return []; }
+}
+
+function saveResumeVersion() {
+  const text = document.getElementById('resumeText').value.trim();
+  if (!text || text.length < 100) { showToast('Paste your resume first (at least 100 characters)'); return; }
+  const versions = getResumeVersions();
+  if (versions.length >= 5) { showToast('Max 5 versions saved. Delete one first.'); toggleVersionsPanel(); return; }
+  const name = prompt('Name this version (e.g. "Google PM", "Startup SWE"):');
+  if (!name) return;
+  const entry = { id: Date.now(), name: name.slice(0,40), content: text, chars: text.length, savedAt: new Date().toISOString() };
+  versions.push(entry);
+  localStorage.setItem('preptai_resume_versions', JSON.stringify(versions));
+  renderVersionsBadge();
+  renderVersionsPanel();
+  document.getElementById('versionsPanel').style.display = 'block';
+  showToast('Version saved: ' + entry.name);
+}
+
+function loadResumeVersion(id) {
+  const versions = getResumeVersions();
+  const v = versions.find(x => x.id === id);
+  if (!v) return;
+  document.getElementById('resumeText').value = v.content;
+  updateCC('resumeText','rcc');
+  document.getElementById('versionsPanel').style.display = 'none';
+  showToast('Loaded: ' + v.name);
+}
+
+function deleteResumeVersion(id) {
+  let versions = getResumeVersions().filter(x => x.id !== id);
+  localStorage.setItem('preptai_resume_versions', JSON.stringify(versions));
+  renderVersionsBadge();
+  renderVersionsPanel();
+}
+
+function toggleVersionsPanel() {
+  const panel = document.getElementById('versionsPanel');
+  if (panel.style.display === 'none' || !panel.style.display) {
+    renderVersionsPanel();
+    panel.style.display = 'block';
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+function renderVersionsBadge() {
+  const count = getResumeVersions().length;
+  const btn = document.getElementById('versionsToggle');
+  if (btn) btn.textContent = count > 0 ? `📂 Saved (${count})` : '📂 Saved';
+}
+
+function renderVersionsPanel() {
+  const panel = document.getElementById('versionsPanel');
+  if (!panel) return;
+  const versions = getResumeVersions();
+  if (versions.length === 0) {
+    panel.innerHTML = `<div style="font-size:12px;color:#8a87a0;padding:8px;text-align:center">No saved versions yet. Paste a resume and click "Save version".</div>`;
+    return;
+  }
+  panel.innerHTML = versions.map(v => {
+    const d = new Date(v.savedAt);
+    const dateStr = d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;margin-bottom:5px">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:#edeaf7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.name}</div>
+        <div style="font-size:11px;color:#8a87a0">${v.chars.toLocaleString()} chars &middot; ${dateStr}</div>
+      </div>
+      <button onclick="loadResumeVersion(${v.id})" style="padding:4px 10px;background:rgba(123,109,244,0.12);border:1px solid rgba(123,109,244,0.25);color:#a498ff;border-radius:6px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer">Load</button>
+      <button onclick="deleteResumeVersion(${v.id})" style="padding:4px 8px;background:transparent;border:1px solid rgba(239,95,95,0.2);color:#ef5f5f;border-radius:6px;font-family:'Outfit',sans-serif;font-size:11px;cursor:pointer" title="Delete">✕</button>
+    </div>`;
+  }).join('');
+}
 </script>
 
 
