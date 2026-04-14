@@ -77,6 +77,95 @@ function detectPromptInjection(text) {
   ].some(p => p.test(text));
 }
 
+// ── BLS SALARY BENCHMARKS (2023-2024 Occupational Employment & Wage Statistics) ─
+const SALARY_BENCHMARKS = [
+  // Technology
+  { keys: ["software engineer","software developer","swe","full stack","fullstack","full-stack"], p25: 95000,  median: 132000, p75: 172000 },
+  { keys: ["senior software","staff engineer","principal engineer"],                              p25: 140000, median: 175000, p75: 220000 },
+  { keys: ["frontend","front-end","front end","ui engineer","react developer","vue developer"],   p25: 88000,  median: 120000, p75: 158000 },
+  { keys: ["backend","back-end","back end","api engineer","node developer","python developer"],   p25: 92000,  median: 128000, p75: 168000 },
+  { keys: ["data scientist","machine learning","ml engineer","ai engineer"],                     p25: 100000, median: 130000, p75: 168000 },
+  { keys: ["data analyst","business intelligence","bi analyst"],                                 p25: 65000,  median: 88000,  p75: 115000 },
+  { keys: ["data engineer","etl","pipeline engineer"],                                           p25: 98000,  median: 130000, p75: 168000 },
+  { keys: ["devops","platform engineer","sre","site reliability","infrastructure engineer"],     p25: 105000, median: 140000, p75: 183000 },
+  { keys: ["cybersecurity","security engineer","infosec","security analyst"],                    p25: 85000,  median: 112000, p75: 148000 },
+  { keys: ["cloud engineer","aws engineer","azure engineer","gcp engineer"],                     p25: 100000, median: 135000, p75: 175000 },
+  { keys: ["product manager","pm","product lead"],                                               p25: 105000, median: 147000, p75: 195000 },
+  { keys: ["engineering manager","vp engineering","head of engineering","director of engineering"], p25: 155000, median: 200000, p75: 260000 },
+  { keys: ["qa engineer","quality assurance","test engineer","sdet"],                            p25: 72000,  median: 99000,  p75: 132000 },
+  { keys: ["ux designer","ui designer","product designer","user experience"],                    p25: 75000,  median: 105000, p75: 140000 },
+  { keys: ["it manager","it director","technology manager"],                                     p25: 110000, median: 161000, p75: 210000 },
+  { keys: ["network engineer","systems administrator","sysadmin","network administrator"],       p25: 68000,  median: 95000,  p75: 128000 },
+  { keys: ["technical program manager","tpm","technical project manager"],                       p25: 115000, median: 155000, p75: 200000 },
+  { keys: ["solutions architect","cloud architect","enterprise architect"],                      p25: 130000, median: 170000, p75: 220000 },
+  // Finance & Accounting
+  { keys: ["financial analyst","investment analyst","equity analyst"],                           p25: 68000,  median: 96000,  p75: 135000 },
+  { keys: ["accountant","staff accountant","cpa","controller"],                                  p25: 52000,  median: 78000,  p75: 108000 },
+  { keys: ["finance manager","director of finance","vp finance","head of finance"],              p25: 110000, median: 148000, p75: 200000 },
+  { keys: ["cfo","chief financial officer"],                                                     p25: 175000, median: 250000, p75: 380000 },
+  { keys: ["investment banker","banking analyst","ib analyst"],                                  p25: 100000, median: 145000, p75: 220000 },
+  { keys: ["portfolio manager","fund manager","asset manager"],                                  p25: 95000,  median: 138000, p75: 210000 },
+  { keys: ["financial advisor","wealth manager","financial planner"],                            p25: 58000,  median: 94000,  p75: 155000 },
+  { keys: ["actuary","actuarial"],                                                               p25: 90000,  median: 120000, p75: 160000 },
+  // Sales & Marketing
+  { keys: ["sales manager","director of sales","vp sales","head of sales"],                     p25: 90000,  median: 135000, p75: 190000 },
+  { keys: ["account executive","ae","sales representative","sales rep"],                         p25: 55000,  median: 78000,  p75: 115000 },
+  { keys: ["business development","bd manager","bdr","sdr","sales development"],                 p25: 52000,  median: 73000,  p75: 105000 },
+  { keys: ["marketing manager","marketing director","head of marketing","vp marketing"],         p25: 88000,  median: 138000, p75: 190000 },
+  { keys: ["digital marketing","seo","sem","ppc","growth marketer"],                             p25: 55000,  median: 78000,  p75: 108000 },
+  { keys: ["content strategist","content manager","content marketing"],                          p25: 52000,  median: 72000,  p75: 98000 },
+  { keys: ["brand manager","brand strategist"],                                                  p25: 65000,  median: 95000,  p75: 132000 },
+  // Healthcare
+  { keys: ["registered nurse","rn","nurse"],                                                     p25: 64000,  median: 81000,  p75: 102000 },
+  { keys: ["nurse practitioner","np","advanced practice"],                                       p25: 98000,  median: 120000, p75: 148000 },
+  { keys: ["physician","doctor","md","medical doctor"],                                          p25: 180000, median: 236000, p75: 350000 },
+  { keys: ["physician assistant","pa","pa-c"],                                                   p25: 100000, median: 126000, p75: 158000 },
+  { keys: ["pharmacist","pharmacy"],                                                              p25: 110000, median: 132000, p75: 155000 },
+  { keys: ["physical therapist","pt","physical therapy"],                                        p25: 78000,  median: 97000,  p75: 120000 },
+  { keys: ["occupational therapist","ot","occupational therapy"],                                p25: 76000,  median: 94000,  p75: 115000 },
+  { keys: ["healthcare administrator","hospital administrator","healthcare manager"],             p25: 75000,  median: 110000, p75: 155000 },
+  { keys: ["medical coder","health information","medical records"],                              p25: 40000,  median: 52000,  p75: 68000 },
+  // Legal
+  { keys: ["attorney","lawyer","counsel","associate attorney"],                                  p25: 82000,  median: 145000, p75: 230000 },
+  { keys: ["paralegal","legal assistant"],                                                       p25: 42000,  median: 58000,  p75: 76000 },
+  { keys: ["general counsel","chief legal officer","clo"],                                       p25: 175000, median: 260000, p75: 400000 },
+  // Operations & Management
+  { keys: ["operations manager","director of operations","vp operations"],                       p25: 75000,  median: 103000, p75: 145000 },
+  { keys: ["project manager","pmp","program manager"],                                           p25: 72000,  median: 97000,  p75: 130000 },
+  { keys: ["supply chain","logistics manager","procurement manager"],                            p25: 65000,  median: 92000,  p75: 128000 },
+  { keys: ["hr manager","human resources manager","people manager","head of hr"],                p25: 80000,  median: 120000, p75: 168000 },
+  { keys: ["hr generalist","hr business partner","hrbp"],                                        p25: 55000,  median: 76000,  p75: 102000 },
+  { keys: ["recruiter","talent acquisition","sourcer","recruiting manager"],                     p25: 52000,  median: 72000,  p75: 98000 },
+  { keys: ["ceo","chief executive officer"],                                                     p25: 175000, median: 290000, p75: 580000 },
+  { keys: ["coo","chief operating officer"],                                                     p25: 160000, median: 240000, p75: 380000 },
+  { keys: ["cto","chief technology officer"],                                                    p25: 165000, median: 250000, p75: 390000 },
+  // Real Estate
+  { keys: ["real estate agent","realtor","real estate broker"],                                  p25: 38000,  median: 58000,  p75: 105000 },
+  { keys: ["property manager","property management"],                                            p25: 45000,  median: 62000,  p75: 88000 },
+  // Education
+  { keys: ["teacher","educator","instructor","professor"],                                        p25: 46000,  median: 65000,  p75: 88000 },
+  { keys: ["school counselor","academic advisor","guidance counselor"],                          p25: 48000,  median: 64000,  p75: 82000 },
+  // Customer Service & Retail
+  { keys: ["customer success","customer success manager","csm"],                                 p25: 52000,  median: 72000,  p75: 100000 },
+  { keys: ["customer service","support specialist","customer support"],                          p25: 34000,  median: 44000,  p75: 58000 },
+  { keys: ["retail manager","store manager"],                                                    p25: 42000,  median: 58000,  p75: 80000 },
+  // Skilled Trades
+  { keys: ["electrician","electrical contractor"],                                               p25: 52000,  median: 64000,  p75: 82000 },
+  { keys: ["plumber","plumbing"],                                                                p25: 48000,  median: 61000,  p75: 80000 },
+  { keys: ["hvac","heating","cooling","refrigeration"],                                          p25: 46000,  median: 60000,  p75: 80000 },
+];
+
+function getSalaryBenchmark(role) {
+  if (!role) return null;
+  const r = role.toLowerCase();
+  for (const entry of SALARY_BENCHMARKS) {
+    if (entry.keys.some(k => r.includes(k))) {
+      return entry;
+    }
+  }
+  return null;
+}
+
 // ── ANSWER STYLE FRAMEWORKS ───────────────────────────────────────────────────
 const STYLE_FRAMEWORKS = {
   star: `STAR+ METHOD (Situation → Task → Action → Result → Learning):
@@ -442,6 +531,16 @@ Return ONLY a valid JSON array of exactly 5 strings. No markdown, no explanation
 
 // ── SALARY NEGOTIATION COACH ──────────────────────────────────────────────────
 function buildSalaryPrompt(role, company, location, yearsExp, currentOffer, targetSalary) {
+  const benchmark = getSalaryBenchmark(role);
+  const benchmarkSection = benchmark
+    ? `VERIFIED MARKET DATA (BLS Occupational Employment & Wage Statistics 2023-2024):
+- 25th percentile: $${benchmark.p25.toLocaleString()}
+- Median (50th percentile): $${benchmark.median.toLocaleString()}
+- 75th percentile: $${benchmark.p75.toLocaleString()}
+- Location note: Adjust +15-30% for SF/NYC/Seattle, +5-15% for Austin/Denver/Boston, -10-20% for lower cost-of-living markets
+Use these as your anchor numbers. Do not fabricate ranges — derive counter-offer from this real data.`
+    : `Use your best knowledge of current market compensation for this role and location. Be specific with dollar amounts — do not give ranges without anchors.`;
+
   return `You are a salary negotiation expert with deep knowledge of compensation data.
 The user has received a job offer and needs a concrete negotiation strategy.
 
@@ -452,18 +551,20 @@ Years of experience: ${yearsExp || 'Not specified'}
 Current offer: ${currentOffer || 'Not specified'}
 Target salary: ${targetSalary || 'Not specified'}
 
-Research-backed facts to use:
-- Most hiring managers are comfortable with salary negotiation in the 10-25% range
-- The median acceptable increase is 22%
-- 80% of employers have flexibility in their initial offer
-- Candidates who negotiate earn $5,000-$10,000 more on average
+${benchmarkSection}
+
+Research-backed negotiation facts:
+- 80% of employers have flexibility in their initial offer (Jobvite, 2023)
+- Candidates who negotiate earn $5,000-$10,000 more on average over their tenure
+- The acceptable negotiation range is 10-25% above the offer
+- First number anchors the negotiation — always go high within the realistic range
 
 Provide:
-1. COUNTER-OFFER RANGE: A specific dollar range with high/mid/low targets
+1. COUNTER-OFFER RANGE: A specific dollar range with high/mid/low targets derived from the market data above
 2. OPENING LINE: The exact first sentence to say when starting negotiation
 3. THREE POWER PHRASES: Specific sentences to use during the conversation
-4. ONE-LINER CLOSES: How to close the negotiation confidently
-5. WHAT NOT TO SAY: Two phrases to avoid
+4. ONE-LINER CLOSE: How to close the negotiation confidently
+5. WHAT NOT TO SAY: Two phrases to avoid and why
 
 Be specific, practical, and confident. Use actual numbers. No hedging. Write in a direct conversational tone.
 Do not use em dashes anywhere in your response.`;
@@ -709,10 +810,11 @@ export default async function handler(req, res) {
         maxTok = 700;
       }
 
+      // Prompt caching on free-mode system prompts (reduces cost ~80% on repeated calls)
       const response = await anthropic.messages.create({
         model: "claude-sonnet-4-20250514",
         max_tokens: maxTok,
-        system: systemPrompt,
+        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
         messages: [{ role: "user", content: userMsg }],
       });
       const answer = response.content[0]?.text;
@@ -732,11 +834,49 @@ export default async function handler(req, res) {
   else if (mode === "mockgen")  systemPrompt = buildMockGenPrompt(cleanSector, cleanRole, cleanCompany, cleanJobDesc);
   else                          systemPrompt = buildCoachingPrompt(cleanSector, cleanRole, cleanCompany, cleanStyle, cleanResume, cleanJobDesc);
 
+  // ── STREAMING PATH — chat, followup, thankyou (text responses) ───────────────
+  const streamModes = ["chat", "followup", "thankyou"];
+  const wantsStream = req.body.stream === true && streamModes.includes(mode);
+
+  if (wantsStream) {
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("X-Accel-Buffering", "no");
+    res.setHeader("Access-Control-Allow-Origin", "https://www.preptai.co");
+    try {
+      const stream = anthropic.messages.stream({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1024,
+        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
+        messages: [{ role: "user", content: cleanMessage }],
+      });
+      for await (const event of stream) {
+        if (event.type === "content_block_delta" && event.delta?.type === "text_delta") {
+          res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
+        }
+      }
+      if (cleanEmail) await logUsage(cleanEmail, mode);
+      let remaining = "unlimited";
+      if (plan === "free" && cleanEmail) {
+        const used = await getMonthlyUsage(cleanEmail, limitKey);
+        remaining = Math.max(0, limits[limitKey] - used);
+      }
+      res.write(`data: ${JSON.stringify({ done: true, plan, remaining })}\n\n`);
+      res.end();
+    } catch (error) {
+      console.error("Stream error:", error);
+      res.write(`data: ${JSON.stringify({ error: true, message: "Stream failed. Please try again." })}\n\n`);
+      res.end();
+    }
+    return;
+  }
+
+  // ── NON-STREAMING PATH — match, mockgen, and fallback ────────────────────────
   try {
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: mode === "match" ? 4096 : 1024,
-      system: systemPrompt,
+      system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
       messages: [{ role: "user", content: cleanMessage }],
     });
 

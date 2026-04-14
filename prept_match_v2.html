@@ -389,6 +389,7 @@ footer span{color:var(--gold);font-weight:600}
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module" id="pdfjs-script"></script>
   <link rel="canonical" href="https://www.preptai.co/prept_match_v2.html">
 </head>
 <body>
@@ -485,6 +486,7 @@ footer span{color:var(--gold);font-weight:600}
         <div class="analyze-note">🔒 Your resume is never stored or shared. Processed in real time, discarded immediately after.</div>
       </div>
     </div>
+    <div id="analysisHistory" style="display:none;max-width:800px;margin:0 auto 32px;padding:0 24px"></div>
 
     <div id="stageLoading">
       <div class="loading-ring"></div>
@@ -701,40 +703,68 @@ function dzDrag(e,on){e.preventDefault();document.getElementById('dz').classList
 function dzDrop(e){e.preventDefault();document.getElementById('dz').classList.remove('drag');const f=e.dataTransfer.files[0];if(f)processFile(f);}
 function handleFile(e){const f=e.target.files[0];if(f)processFile(f);}
 
+async function extractPdfText(arrayBuffer) {
+  // Load pdf.js dynamically (module script already loaded via CDN)
+  const pdfjsLib = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let fullText = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    // Preserve line structure by tracking y-position changes
+    let lastY = null;
+    for (const item of content.items) {
+      if (lastY !== null && Math.abs(item.transform[5] - lastY) > 5) {
+        fullText += '\n';
+      }
+      fullText += item.str + ' ';
+      lastY = item.transform[5];
+    }
+    fullText += '\n';
+  }
+  return fullText.replace(/\s{3,}/g, '  ').trim();
+}
+
 async function processFile(f) {
   if (f.size > 5 * 1024 * 1024) {
     alert('File is too large. Please upload a resume under 5MB.');
     return;
   }
   const dz = document.getElementById('dz');
+  dz.innerHTML = `<div class="dz-icon">⏳</div><div class="dz-title">Reading ${escH(f.name)}...</div><div class="dz-sub">Extracting text</div>`;
   try {
+    let text = '';
     if (f.name.endsWith('.txt')) {
-      const text = await f.text();
-      document.getElementById('resumeText').value = text;
-      updateCC('resumeText','rcc');
-      dz.innerHTML = `<div class="dz-icon">✅</div><div class="dz-title">${escH(f.name)}</div><div class="dz-sub">Text loaded</div>`;
+      text = await f.text();
+    } else if (f.name.endsWith('.pdf')) {
+      const arrayBuffer = await f.arrayBuffer();
+      text = await extractPdfText(arrayBuffer);
     } else {
-      // PDF/DOC: extract readable text
+      // DOC/DOCX: read raw bytes for readable ASCII content
       const arrayBuffer = await f.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
-      let text = '';
+      let raw = '';
       for (let i = 0; i < bytes.length; i++) {
         const c = bytes[i];
-        if (c >= 32 && c < 127) text += String.fromCharCode(c);
-        else if (c === 10 || c === 13) text += ' ';
+        if (c >= 32 && c < 127) raw += String.fromCharCode(c);
+        else if (c === 10 || c === 13) raw += '\n';
       }
-      const clean = text.replace(/[^\x20-\x7E\n]/g,' ').replace(/\s{3,}/g,' ').trim();
-      if (clean.length > 100) {
-        document.getElementById('resumeText').value = clean;
-        updateCC('resumeText','rcc');
-        dz.innerHTML = `<div class="dz-icon">✅</div><div class="dz-title">${escH(f.name)}</div><div class="dz-sub">Text extracted</div>`;
-      } else {
-        dz.innerHTML = `<div class="dz-icon">📄</div><div class="dz-title">${escH(f.name)}</div><div class="dz-sub" style="color:var(--am)">Please paste your resume text below for best results.</div>`;
-        showToast('For best results, paste your resume text directly.');
-      }
+      text = raw.replace(/[^\x20-\x7E\n]/g, ' ').replace(/\s{3,}/g, '  ').trim();
+    }
+
+    if (text.length > 100) {
+      document.getElementById('resumeText').value = text;
+      updateCC('resumeText','rcc');
+      dz.innerHTML = `<div class="dz-icon">✅</div><div class="dz-title">${escH(f.name)}</div><div class="dz-sub">${text.length.toLocaleString()} characters extracted</div>`;
+    } else {
+      dz.innerHTML = `<div class="dz-icon">📄</div><div class="dz-title">${escH(f.name)}</div><div class="dz-sub" style="color:var(--am)">Could not extract text — please paste your resume below.</div>`;
+      showToast('For best results, paste your resume text directly.');
     }
   } catch(err) {
-    showToast('Could not read file. Please paste your resume text instead.');
+    dz.innerHTML = `<div class="dz-icon">📄</div><div class="dz-title">Upload failed</div><div class="dz-sub" style="color:var(--re)">Please paste your resume text below instead.</div>`;
+    showToast('Could not read file — paste your resume text below.');
+    console.error('File parse error:', err);
   }
 }
 
@@ -883,6 +913,19 @@ Return ONLY valid JSON (no markdown, no explanation):
     const raw = data.answer || '';
     const clean = raw.replace(/```json|```/g,'').trim();
     analysis = JSON.parse(clean);
+
+    // Save to analysis history
+    saveAnalysisHistory({
+      id:      Date.now(),
+      date:    new Date().toISOString(),
+      score:   analysis.overallScore,
+      grade:   analysis.grade,
+      verdict: analysis.verdict,
+      keywordsMissing: (analysis.keywordsMissing || []).slice(0, 6),
+      topPriorityFixes: analysis.topPriorityFixes || [],
+      resumeSnippet: resumeContent.slice(0, 120),
+      jobSnippet:    jobContent.slice(0, 80),
+    });
 
     setTimeout(() => {
       document.getElementById('stageLoading').style.display = 'none';
@@ -1404,7 +1447,50 @@ function shareResult() {
 }
 function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
+// ── ANALYSIS HISTORY (localStorage, last 5 analyses) ─────────────────────────
+function saveAnalysisHistory(entry) {
+  try {
+    const existing = JSON.parse(localStorage.getItem('preptai_analysis_history') || '[]');
+    existing.unshift(entry);
+    localStorage.setItem('preptai_analysis_history', JSON.stringify(existing.slice(0, 5)));
+  } catch(e) {}
+}
+
+function getAnalysisHistory() {
+  try { return JSON.parse(localStorage.getItem('preptai_analysis_history') || '[]'); }
+  catch(e) { return []; }
+}
+
+function renderAnalysisHistory() {
+  const history = getAnalysisHistory();
+  const el = document.getElementById('analysisHistory');
+  if (!el) return;
+  if (!history.length) { el.style.display = 'none'; return; }
+
+  const gc = s => s >= 85 ? '#45de7a' : s >= 70 ? '#f5a52a' : '#ef5f5f';
+
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--tx3);margin-bottom:12px">Recent Analyses</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${history.map(h => {
+        const date = new Date(h.date).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+        return `<div style="padding:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;cursor:default">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+            <div style="font-size:22px;font-weight:900;color:${gc(h.score)};font-family:'Outfit',sans-serif">${h.score}</div>
+            <div style="flex:1">
+              <div style="font-size:12px;color:var(--tx2);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical">${escH(h.jobSnippet || 'Analysis')}</div>
+              <div style="font-size:11px;color:var(--tx3);margin-top:1px">${date} · Grade ${h.grade}</div>
+            </div>
+          </div>
+          ${h.keywordsMissing?.length ? `<div style="display:flex;flex-wrap:wrap;gap:4px">${h.keywordsMissing.map(k=>`<span style="padding:2px 8px;border-radius:8px;font-size:10px;background:rgba(239,95,95,0.08);border:1px solid rgba(239,95,95,0.18);color:#ef5f5f">${escH(k)}</span>`).join('')}</div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
 updTrackerBadge();
+renderAnalysisHistory();
 </script>
 
 
