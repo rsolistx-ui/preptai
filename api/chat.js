@@ -311,39 +311,111 @@ RULES:
 
 // ── RESUME MATCH PROMPT ───────────────────────────────────────────────────────
 function buildMatchPrompt() {
-  return `You are PREPT AI Match ,  a precision ATS optimization engine trained on how Applicant Tracking Systems actually score resumes and what human recruiters look for in the first 6 seconds of review.
+  return `You are PREPT AI Match — a precision ATS optimization engine trained on how Applicant Tracking Systems actually score resumes and what human recruiters look for in the first 6 seconds of review.
 
 THE RESEARCH BEHIND THIS ANALYSIS:
 - 75% of resumes are rejected by ATS before a human sees them (Jobscan, 2023)
 - Recruiters spend an average of 6-7 seconds on initial resume review (Ladders eye-tracking study)
 - Resumes with quantified achievements are 40% more likely to receive callbacks (LinkedIn Talent Trends)
-- Keyword matching is the #1 ATS ranking factor ,  exact phrase match outperforms semantic match in most systems
+- Keyword matching is the #1 ATS ranking factor — exact phrase match outperforms semantic match in most systems
+- Resumes with tables, columns, or graphics score 30-60% lower in ATS systems (Jobscan format study)
+- Only 36% of resumes have a phone number formatted correctly for ATS parsing (ResumeGo, 2022)
 
-YOUR ANALYSIS FRAMEWORK:
-Return a comprehensive analysis that covers exactly what needs to change and why, with specific rewrites ,  not vague suggestions.
+YOUR ANALYSIS MUST BE SURGICAL AND SPECIFIC. Every finding must reference actual content from the resume. No generic advice.
 
-DELIVER:
+QUANTIFICATION ANALYSIS:
+Count every bullet point in the work experience section. Identify which ones contain a number, percentage, dollar amount, or measurable result. Calculate: quantifiedBullets / totalBullets * 100 = quantificationScore. Industry benchmark: top 10% of candidates have 70%+ quantified bullets.
 
-1. ATS COMPATIBILITY SCORE (0-100)
-Specific breakdown: keyword match %, format compliance, section structure, title alignment
+FORMAT COMPLIANCE ANALYSIS:
+Scan for ATS-hostile formatting: tables, multi-column layouts, headers/footers, text boxes, graphics, special characters (■, ●, →, etc.), non-standard section titles, missing standard sections. Each issue reduces ATS parse accuracy by 10-30%.
 
-2. CRITICAL MISSING KEYWORDS
-Exact phrases from the job description not present in the resume, ranked by frequency in the JD. Include where to add each one.
+CONTACT INFO AUDIT:
+Check for presence of: email address, phone number, LinkedIn URL, location (city/state minimum), GitHub or portfolio URL (for technical roles). Missing contact fields cause ATS rejection at the parsing stage.
 
-3. WEAK PHRASES ,  REWRITE REQUIRED
-Quote the exact weak line. Then provide the rewritten version. Show the upgrade.
-Formula: [Strong action verb] + [specific what] + [quantified result]
+ACTION VERB STRENGTH ANALYSIS:
+Categorize every action verb:
+- STRONG (10 points each): spearheaded, drove, generated, reduced, grew, launched, negotiated, rebuilt, closed, orchestrated, led, delivered, exceeded, cut, secured
+- WEAK (0 points): helped, worked on, assisted, was responsible for, participated in, involved in, supported, contributed to
+Calculate: actionVerbScore = (strongVerbs / totalVerbs) * 100
 
-4. SECTION-BY-SECTION AUDIT
-Professional Summary, Work Experience (bullets), Skills, Education ,  specific grade and specific fix for each
+RETURN ONLY THIS EXACT JSON STRUCTURE (no markdown, no explanation outside the JSON):
+{
+  "overallScore": <integer 0-100>,
+  "projectedScore": <integer — realistic score after fixes>,
+  "grade": <"A"|"B"|"C"|"D">,
+  "benchmarkNote": <string — e.g. "Top candidates for this role score 85+">,
+  "verdict": <string — 2-3 sentences specific to THIS resume vs THIS job. Name actual gaps.>,
+  "toneAnalysis": {
+    "resumeTone": <string — e.g. "casual/informal">,
+    "jdTone": <string — e.g. "corporate-formal">,
+    "mismatch": <boolean>,
+    "mismatchNote": <string — specific example of the tone gap>
+  },
+  "salaryData": {
+    "low": <string — e.g. "$52,000">,
+    "mid": <string>,
+    "high": <string>,
+    "negotiationTip": <string — one specific tactic for this role>
+  },
+  "sectionScores": {
+    "summary": <integer 0-100>,
+    "experience": <integer 0-100>,
+    "skills": <integer 0-100>,
+    "education": <integer 0-100>
+  },
+  "quantificationScore": <integer 0-100 — % of bullets with metrics>,
+  "quantifiedBullets": <integer — count of bullets with numbers>,
+  "totalBullets": <integer — total experience bullets found>,
+  "actionVerbScore": <integer 0-100>,
+  "formatWarnings": [<string — specific format issues found, e.g. "Table detected in experience section — ATS will misread column order">],
+  "contactInfoIssues": [<string — e.g. "LinkedIn URL missing — recruiters check LinkedIn before scheduling">],
+  "topPriorityFixes": [
+    {"rank": 1, "title": <string>, "impact": <string — e.g. "+12 ATS points">, "action": <string — exact instruction>},
+    {"rank": 2, "title": <string>, "impact": <string>, "action": <string>},
+    {"rank": 3, "title": <string>, "impact": <string>, "action": <string>}
+  ],
+  "keywordsFound": [<strings — actual keywords from resume that match JD>],
+  "keywordsMissing": [<strings — exact phrases from JD not in resume>],
+  "keywordsCritical": [<strings — subset of missing that appear 3+ times in JD or are in job title>],
+  "keywordAnalysis": <string — specific analysis of the keyword gap for THIS job>,
+  "atsIssues": [
+    {
+      "severity": <"high"|"medium"|"low">,
+      "title": <string>,
+      "description": <string — references actual content from the resume>,
+      "fix": <string — exact actionable instruction>
+    }
+  ],
+  "weakBullets": [
+    {
+      "original": <string — exact bullet from resume>,
+      "rewritten": <string — rewritten with strong verb + specific + quantified result + JD keyword>,
+      "improvement": <string — why the rewrite is stronger>
+    }
+  ],
+  "rewrittenSummary": <string — complete professional summary with JD keywords naturally embedded>,
+  "rewrittenSkills": <string — complete skills section with missing keywords added>,
+  "rewrittenExperience": <string — rewritten bullets using \\n as line separator>,
+  "linkedinHeadline": <string — optimized headline under 220 characters>,
+  "linkedinAbout": <string — About section 250-300 words, under 2600 characters total, uses \\n for paragraphs>,
+  "linkedinSkills": <string — comma-separated top 10 skills aligned to JD>,
+  "interviewQuestions": [
+    {
+      "category": <string — e.g. "Behavioral" | "Technical" | "Gap-based">,
+      "question": <string — specific question based on actual resume gaps vs JD requirements>,
+      "why": <string — why this question will be asked based on specific gap found>
+    }
+  ]
+}
 
-5. TOP 3 PRIORITY FIXES
-The three changes that will have the highest immediate impact. If they only do three things, what should they be?
-
-6. TONE AND LANGUAGE ANALYSIS
-Does the candidate's language match the seniority level and culture of the role? Specific examples.
-
-Be surgical. Be direct. Every comment must have a specific corresponding fix. This person's career advancement depends on getting this right.`;
+QUALITY RULES — NEVER VIOLATE:
+- Every atsIssue must reference specific content from the actual resume provided
+- Every weakBullet.original must be an actual bullet from the resume — do not fabricate
+- rewrittenSummary must incorporate at least 4 keywords from keywordsCritical or keywordsMissing
+- interviewQuestions must be based on actual gaps between the resume and JD — not generic questions
+- salaryData ranges must be realistic for the role title and location context in the JD
+- If the resume has no professional summary, still provide a rewrittenSummary based on their experience
+- quantificationScore of 0 means zero bullets have metrics — be accurate, not generous`;
 }
 
 
@@ -400,8 +472,8 @@ Do not use em dashes anywhere in your response.`;
 // ── SKILLS GAP ANALYSIS ───────────────────────────────────────────────────────
 function buildSkillsGapPrompt(jobDescription, resumeText) {
   const context = resumeText
-    ? `User resume:\n${resumeText.slice(0, 1500)}\n\nJob description:\n${jobDescription.slice(0, 1500)}`
-    : `Job description:\n${jobDescription.slice(0, 2000)}`;
+    ? `User resume:\n${resumeText.slice(0, 3000)}\n\nJob description:\n${jobDescription.slice(0, 2000)}`
+    : `Job description:\n${jobDescription.slice(0, 2500)}`;
   return `You are a career strategist analyzing a job description to identify skills gaps.
 
 ${context}
@@ -511,9 +583,13 @@ export default async function handler(req, res) {
     return res.status(429).json({ error: "rate_limited", message: "Too many requests. Please wait before trying again." });
   }
 
-  const { message, mode, userEmail, sector, role, company, style, resumeText, jobDescription } = req.body;
+  const {
+    message, mode, userEmail, sector, role, company, style, resumeText, jobDescription,
+    location, yearsExp, currentOffer, targetSalary, timeLimit,
+    previousQuestion, userAnswer, answers, systemOverride
+  } = req.body;
 
-  const validModes = ["chat","match","followup","thankyou","mockgen","salary","skillsgap","asyncvideo","adaptive","debrief","jenn"];
+  const validModes = ["chat","match","followup","thankyou","mockgen","salary","skillsgap","asyncvideo","adaptive","debrief","jenn","coverletter","linkedin"];
   if (!message || typeof message !== "string") return res.status(400).json({ error: "Message is required" });
   if (!mode || !validModes.includes(mode)) return res.status(400).json({ error: "Invalid mode" });
 
@@ -572,11 +648,11 @@ export default async function handler(req, res) {
   }
 
   // Free utility modes: skip all limit checks and usage logging
-  const freeModes = ["mockgen", "salary", "skillsgap", "asyncvideo", "adaptive"];
+  const freeModes = ["mockgen", "salary", "skillsgap", "asyncvideo", "adaptive", "debrief", "jenn", "coverletter", "linkedin"];
   if (freeModes.includes(mode)) {
     try {
       let systemPrompt;
-      let userMsg = body.message || "Generate the response.";
+      let userMsg = cleanMessage || "Generate the response.";
       let maxTok = 1000;
 
       if (mode === "mockgen") {
@@ -586,10 +662,10 @@ export default async function handler(req, res) {
       } else if (mode === "salary") {
         systemPrompt = buildSalaryPrompt(
           cleanRole, cleanCompany,
-          (body.location || '').slice(0,100),
-          (body.yearsExp || '').slice(0,50),
-          (body.currentOffer || '').slice(0,50),
-          (body.targetSalary || '').slice(0,50)
+          (location || '').slice(0,100),
+          (yearsExp || '').slice(0,50),
+          (currentOffer || '').slice(0,50),
+          (targetSalary || '').slice(0,50)
         );
         userMsg = "Provide my salary negotiation strategy.";
         maxTok = 900;
@@ -599,25 +675,38 @@ export default async function handler(req, res) {
         maxTok = 800;
       } else if (mode === "asyncvideo") {
         systemPrompt = buildAsyncVideoPrompt(
-          (body.message || '').slice(0,500),
+          cleanMessage.slice(0,500),
           cleanRole, cleanCompany,
-          (body.timeLimit || '2 minutes')
+          (timeLimit || '2 minutes')
         );
         userMsg = "Coach my video response.";
         maxTok = 900;
       } else if (mode === "adaptive") {
         systemPrompt = buildAdaptiveFollowUpPrompt(
-          (body.previousQuestion || '').slice(0,300),
-          (body.userAnswer || '').slice(0,800),
+          (previousQuestion || '').slice(0,300),
+          (userAnswer || '').slice(0,800),
           cleanSector, cleanRole
         );
         userMsg = "Generate the follow-up question.";
         maxTok = 150;
       } else if (mode === "debrief") {
-        const answers = Array.isArray(body.answers) ? body.answers.slice(0,10) : [];
-        systemPrompt = buildDebriefPrompt(answers, cleanSector, cleanRole);
+        const debriefAnswers = Array.isArray(answers) ? answers.slice(0,10) : [];
+        systemPrompt = buildDebriefPrompt(debriefAnswers, cleanSector, cleanRole);
         userMsg = "Evaluate the interview performance.";
         maxTok = 400;
+      } else if (mode === "jenn") {
+        const sysOverride = (systemOverride || '').slice(0, 2000);
+        systemPrompt = sysOverride || 'You are Jenn, PREPT AI support assistant. Be warm, professional, and concise. Answer in 2-3 sentences.';
+        userMsg = cleanMessage;
+        maxTok = 300;
+      } else if (mode === "coverletter") {
+        systemPrompt = `You are an expert cover letter writer. Write a compelling, human-sounding cover letter that directly connects the candidate's specific achievements to the role's requirements. Never use generic templates. Rules: open with a specific hook (never "I am applying for"), connect top 2-3 requirements to quantified achievements, show genuine company knowledge, close with a confident CTA. 3-4 paragraphs, under 350 words. Sound human, not corporate.`;
+        userMsg = cleanMessage;
+        maxTok = 700;
+      } else if (mode === "linkedin") {
+        systemPrompt = `You are a LinkedIn profile optimization expert. Generate optimized LinkedIn profile sections that help candidates get found by recruiters searching for the role. Return ONLY valid JSON with no markdown: {"headline":"optimized headline under 220 chars","about":"compelling About section 250-300 words with \\n paragraph breaks, under 2600 total characters","skills":"comma-separated top 10 skills aligned to the job description"}`;
+        userMsg = cleanMessage;
+        maxTok = 700;
       }
 
       const response = await anthropic.messages.create({
@@ -646,7 +735,7 @@ export default async function handler(req, res) {
   try {
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 1024,
+      max_tokens: mode === "match" ? 4096 : 1024,
       system: systemPrompt,
       messages: [{ role: "user", content: cleanMessage }],
     });
@@ -672,9 +761,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "ai_error", message: "Something went wrong. Please try again." });
   }
 }
-      } else if (mode === "jenn") {
-        // Jenn contact page support assistant
-        const sysOverride = body.systemOverride || '';
-        systemPrompt = sysOverride || 'You are Jenn, PREPT AI support assistant. Be warm, professional, and concise. Answer in 2-3 sentences.';
-        userMsg = cleanMessage;
-        maxTok = 600;
