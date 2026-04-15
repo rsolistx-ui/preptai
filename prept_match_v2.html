@@ -192,7 +192,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;padding:0 
 .rw-sbtn{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--b1);background:transparent;color:var(--tx2);font-family:'Outfit',sans-serif;cursor:pointer;transition:all 0.15s}
 .rw-sbtn.on{background:var(--vd);border-color:rgba(123,109,244,0.3);color:var(--vi2);font-weight:600}
 .rw-content{background:var(--s1);border:1px solid var(--b2);border-radius:var(--rs);padding:18px 22px;font-size:13px;line-height:1.9;color:var(--tx);white-space:pre-wrap;min-height:220px}
-.rw-content .kw-hi{background:rgba(200,168,75,0.14);border-radius:3px;padding:0 2px;color:var(--gold3)}
+.rw-content .kw-hi{background:rgba(200,168,75,0.14);border-radius:3px;padding:0 3px;color:var(--gold3)}
 .rw-acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
 .rw-btn{padding:7px 16px;border-radius:var(--rs);font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.18s;border:1px solid var(--b1)}
 .rw-primary{background:var(--gold);color:#07070e;border-color:var(--gold)}
@@ -397,6 +397,9 @@ footer span{color:var(--gold);font-weight:600}
 :root.light .nav-link { background: #ffffff; border-color: rgba(0,0,0,0.12); color: #3a3858; }
 :root.light .themeBtn { color: #3a3858 !important; border-color: rgba(0,0,0,0.15) !important; }
 
+/* Keyword highlights — gold3 (#f4dfa0) is invisible on white; darken for legibility */
+:root.light .rw-content .kw-hi { background: rgba(160,110,0,0.18) !important; color: #6b4600 !important; }
+:root.light .pb-text .hi { background: rgba(160,110,0,0.15) !important; color: #6b4600 !important; }
 /* Inline rgba(255,255,255,...) backgrounds — invisible on light bg */
 :root.light [style*="background:rgba(255,255,255,0.04)"] { background: rgba(0,0,0,0.03) !important; }
 :root.light [style*="border:1px solid rgba(255,255,255,0.08)"] { border-color: rgba(0,0,0,0.09) !important; }
@@ -1241,14 +1244,21 @@ function renderRewrite(r) {
   let active = sections[0]?.id || 'sum';
 
   document.getElementById('rp4').innerHTML = `
-    <div style="font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.6">Sections rewritten to incorporate missing keywords naturally. <span style="color:var(--gold3)">Highlighted</span> = optimized keywords added.</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+      <div style="font-size:13px;color:var(--tx2);line-height:1.6;max-width:460px">Sections rewritten to incorporate missing keywords naturally. <span style="color:var(--gold2);font-weight:600">Highlighted</span> = optimized keywords inserted.</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;flex-shrink:0">
+        <button class="rw-btn rw-primary" onclick="copyAllSections()" title="Copy Summary + Skills + Experience as one block">📋 Copy all</button>
+        <button class="rw-btn" style="background:#7b6df4;color:#fff;border-color:#7b6df4" onclick="downloadResume('docx')">📄 DOCX</button>
+        <button class="rw-btn" style="background:#4d4a66;color:#fff;border-color:#4d4a66" onclick="downloadResume('pdf')">🖨 PDF</button>
+      </div>
+    </div>
     <div class="rw-toolbar">${sections.map(s=>`<button class="rw-sbtn ${s.id===active?'on':''}" onclick="showRWS('${s.id}')">${s.label}</button>`).join('')}</div>
     ${sections.map(s=>`
       <div id="rws-${s.id}" style="display:${s.id===active?'block':'none'}">
         <div class="rw-content" id="rwc-${s.id}">${hlKeywords(escH(s.content),r)}</div>
         <div class="rw-acts">
-          <button class="rw-btn rw-primary" onclick="copyRW('${s.id}')">Copy ${s.label}</button>
-          <button class="rw-btn rw-sec" onclick="copyRWPlain('${s.id}')">Copy plain text</button>
+          <button class="rw-btn rw-primary" onclick="copyRW('${s.id}')">📋 Copy ${s.label}</button>
+          <button class="rw-btn rw-sec" onclick="copyRWPlain('${s.id}')">Plain text</button>
         </div>
       </div>`).join('')}`;
 
@@ -1272,6 +1282,18 @@ function hlKeywords(text,r) {
 function copyRW(id){const el=document.getElementById('rwc-'+id);if(el){navigator.clipboard.writeText(el.innerText);showToast('Copied');}}
 function copyRWPlain(id){const el=document.getElementById('rwc-'+id);if(el){navigator.clipboard.writeText(el.textContent);showToast('Plain text copied');}}
 
+function copyAllSections() {
+  if (!analysis) { showToast('Run an analysis first'); return; }
+  const sep = '\n' + '─'.repeat(42) + '\n';
+  const parts = [];
+  if (analysis.rewrittenSummary)    parts.push('PROFESSIONAL SUMMARY\n' + '─'.repeat(42) + '\n' + analysis.rewrittenSummary.trim());
+  if (analysis.rewrittenSkills)     parts.push('CORE COMPETENCIES & SKILLS\n' + '─'.repeat(42) + '\n' + analysis.rewrittenSkills.trim());
+  if (analysis.rewrittenExperience) parts.push('EXPERIENCE HIGHLIGHTS\n' + '─'.repeat(42) + '\n' + (analysis.rewrittenExperience || '').replace(/\\n/g,'\n').trim());
+  if (parts.length === 0) { showToast('No rewritten sections yet'); return; }
+  navigator.clipboard.writeText(parts.join('\n\n'));
+  showToast('All ' + parts.length + ' rewritten sections copied');
+}
+
 function renderCoverLetterPane() {
   document.getElementById('rp5').innerHTML = `
     <div style="font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.6">Generate a cover letter written specifically for this role at this company using your actual experience and their exact language.</div>
@@ -1293,10 +1315,23 @@ function renderCoverLetterPane() {
     </div>`;
 }
 
+function getLinkedInJobUrl() {
+  const role    = (analysis && analysis.targetRole) || document.getElementById('jobText')?.value?.trim().split('\n')[0] || '';
+  const company = document.getElementById('matchCompanyInput')?.value?.trim() || '';
+  const q       = [role, company].filter(Boolean).join(' ');
+  return 'https://www.linkedin.com/jobs/search/?keywords=' + encodeURIComponent(q) + '&f_AL=true';
+}
+
 function renderLinkedInPane(r) {
   document.getElementById('rp6').innerHTML = `
     <div style="font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.6">Recruiters search LinkedIn before opening their ATS. An optimized profile using the same keywords gets you contacted directly before you even apply.</div>
-    <button class="li-gen-btn" onclick="generateLinkedIn()">Generate LinkedIn Optimization →</button>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      <button class="li-gen-btn" style="margin-bottom:0" onclick="generateLinkedIn()">Generate LinkedIn Optimization →</button>
+      <a href="${getLinkedInJobUrl()}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:rgba(10,102,194,0.1);border:1px solid rgba(10,102,194,0.3);border-radius:var(--rs);font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:#0a66c2;text-decoration:none;transition:all 0.18s;white-space:nowrap" onmouseover="this.style.background='rgba(10,102,194,0.2)'" onmouseout="this.style.background='rgba(10,102,194,0.1)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        Find this role on LinkedIn Jobs →
+      </a>
+    </div>
     <div id="liContent">
       ${r.linkedinHeadline ? renderLIContent(r) : '<div style="color:var(--tx3);font-size:13px;padding:10px 0">Click above to generate your optimized LinkedIn headline, About section, and skills list.</div>'}
     </div>`;
@@ -1318,7 +1353,11 @@ function renderLIContent(r) {
       <div class="li-card-title">Top Skills to Add</div>
       <div class="li-out" id="liS">${escH(r.linkedinSkills||'')}</div>
       <div class="li-acts"><button class="li-copy" onclick="navigator.clipboard.writeText(document.getElementById('liS').textContent);showToast('Skills copied')">Copy</button></div>
-    </div>`;
+    </div>
+    <a href="${getLinkedInJobUrl()}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;margin-top:4px;padding:11px 20px;background:rgba(10,102,194,0.12);border:1px solid rgba(10,102,194,0.3);border-radius:var(--rs);font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:#0a66c2;text-decoration:none;transition:all 0.18s" onmouseover="this.style.background='rgba(10,102,194,0.22)'" onmouseout="this.style.background='rgba(10,102,194,0.12)'">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      Apply on LinkedIn Jobs with Easy Apply filter →
+    </a>`;
 }
 
 function renderInterviewPrep(r) {
@@ -1583,7 +1622,10 @@ function renderGapEntryEditor(entry) {
     <div style="background:var(--s2);border:1px solid rgba(123,109,244,0.25);border-radius:14px;padding:22px;position:relative">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
         <div style="font-size:13px;font-weight:800;color:#a498ff;text-transform:uppercase;letter-spacing:0.8px">✦ Suggested Resume Entry</div>
-        <button onclick="document.getElementById('gapEntryPanel').style.display='none'" style="background:transparent;border:none;color:var(--tx3);font-size:18px;cursor:pointer;line-height:1;padding:0 4px">×</button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onclick="buildGapEntry()" id="gapRegenBtn" style="padding:5px 12px;background:rgba(123,109,244,0.1);border:1px solid rgba(123,109,244,0.25);border-radius:20px;color:#a498ff;font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.18s" onmouseover="this.style.background='rgba(123,109,244,0.2)'" onmouseout="this.style.background='rgba(123,109,244,0.1)'">🔄 Different company</button>
+          <button onclick="document.getElementById('gapEntryPanel').style.display='none'" style="background:transparent;border:none;color:var(--tx3);font-size:18px;cursor:pointer;line-height:1;padding:0 4px">×</button>
+        </div>
       </div>
       <div style="font-size:11px;color:var(--tx3);margin-bottom:16px;padding:7px 10px;background:rgba(245,165,42,0.07);border:1px solid rgba(245,165,42,0.18);border-radius:6px">
         ⚠ Template only — edit all fields to match your actual experience before using.
@@ -1703,6 +1745,35 @@ function insertGapEntry(mode) {
 
   // Auto-save a version before any modification so user can undo
   saveResumeVersion('Before gap insert ' + new Date().toLocaleTimeString());
+
+  // ATS page length warning — ~3400 chars ≈ 1 page; warn if projected > 1.25 pages
+  const projectedChars = resumeTA.value.length + entryText.length;
+  const projectedPages  = projectedChars / 3400;
+  if (projectedPages > 1.25) {
+    const warn = document.getElementById('ge_feedback');
+    if (warn) {
+      warn.style.display = 'block';
+      warn.style.background = 'rgba(245,165,42,0.09)';
+      warn.style.border = '1px solid rgba(245,165,42,0.3)';
+      warn.style.color = '#e6a817';
+      warn.innerHTML = `⚠ Your resume will be ~${projectedPages.toFixed(1)} pages after this insert. ATS systems favor 1-page resumes for most roles. Consider removing an older entry first. <button onclick="insertGapEntry__confirmed('${mode}')" style="margin-left:8px;padding:3px 10px;background:rgba(245,165,42,0.15);border:1px solid rgba(245,165,42,0.35);border-radius:6px;color:#e6a817;font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer">Add anyway →</button>`;
+      // Stash mode for the confirmed callback
+      window._pendingInsertMode = mode;
+      return;
+    }
+  }
+  _doInsert(mode, entryText, resumeTA, feedback);
+}
+
+function insertGapEntry__confirmed(mode) {
+  const entryText = buildGapEntryText();
+  if (!entryText) return;
+  const resumeTA = document.getElementById('resumeText');
+  const feedback = document.getElementById('ge_feedback');
+  _doInsert(mode, entryText, resumeTA, feedback);
+}
+
+function _doInsert(mode, entryText, resumeTA, feedback) {
 
   if (mode === 'append') {
     const current = resumeTA.value;
