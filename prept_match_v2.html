@@ -397,9 +397,9 @@ footer span{color:var(--gold);font-weight:600}
 :root.light .nav-link { background: #ffffff; border-color: rgba(0,0,0,0.12); color: #3a3858; }
 :root.light .themeBtn { color: #3a3858 !important; border-color: rgba(0,0,0,0.15) !important; }
 
-/* Keyword highlights — gold3 (#f4dfa0) is invisible on white; darken for legibility */
-:root.light .rw-content .kw-hi { background: rgba(160,110,0,0.18) !important; color: #6b4600 !important; }
-:root.light .pb-text .hi { background: rgba(160,110,0,0.15) !important; color: #6b4600 !important; }
+/* Keyword highlights — solid amber chip for legibility on white background */
+:root.light .rw-content .kw-hi { background: #fde68a !important; color: #78350f !important; font-weight: 600 !important; border-radius: 3px !important; padding: 0 3px !important; }
+:root.light .pb-text .hi { background: #fde68a !important; color: #78350f !important; font-weight: 600 !important; border-radius: 3px !important; padding: 0 2px !important; }
 /* Inline rgba(255,255,255,...) backgrounds — invisible on light bg */
 :root.light [style*="background:rgba(255,255,255,0.04)"] { background: rgba(0,0,0,0.03) !important; }
 :root.light [style*="border:1px solid rgba(255,255,255,0.08)"] { border-color: rgba(0,0,0,0.09) !important; }
@@ -410,6 +410,14 @@ footer span{color:var(--gold);font-weight:600}
 :root.light [style*="color:#edeaf7"] { color: #0f0f1c !important; }
 /* Gap entry editor company input fallback bg */
 :root.light [style*="background:var(--inp-bg,#111120)"] { background: #ffffff !important; }
+/* Skills gap chips — darken text for legibility on white */
+:root.light .skill-have    { color: #14532d !important; background: rgba(69,222,122,0.15) !important; border-color: rgba(69,222,122,0.3) !important; }
+:root.light .skill-missing { color: #7f1d1d !important; background: rgba(239,95,95,0.12) !important; border-color: rgba(239,95,95,0.28) !important; }
+:root.light .skill-learn   { color: #78350f !important; background: rgba(200,168,75,0.14) !important; border-color: rgba(200,168,75,0.3) !important; }
+/* Gap score ring */
+:root.light .gap-score-ring { border-color: rgba(0,0,0,0.12) !important; }
+/* Dealbreaker rows */
+:root.light [style*="border-bottom:1px solid rgba(255,255,255,0.04)"] { border-bottom-color: rgba(0,0,0,0.06) !important; }
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -764,7 +772,7 @@ async function extractPdfText(arrayBuffer) {
 
 async function processFile(f) {
   if (f.size > 5 * 1024 * 1024) {
-    alert('File is too large. Please upload a resume under 5MB.');
+    showToast('File is too large. Please upload a resume under 5MB.');
     return;
   }
   const dz = document.getElementById('dz');
@@ -1047,7 +1055,10 @@ Return ONLY this JSON (no markdown):
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Something went wrong');
-    const d = JSON.parse((data.answer || '').replace(/```json|```/g,'').trim());
+    const raw = (data.answer || '').replace(/```json|```/g,'');
+    const jm  = raw.match(/\{[\s\S]*\}/);
+    if (!jm) throw new Error('No JSON in response');
+    const d = JSON.parse(jm[0]);
     content.innerHTML = renderLIContent(d);
     showToast('LinkedIn optimization ready');
   } catch(e) {
@@ -1279,8 +1290,8 @@ function hlKeywords(text,r) {
   return out;
 }
 
-function copyRW(id){const el=document.getElementById('rwc-'+id);if(el){navigator.clipboard.writeText(el.innerText);showToast('Copied');}}
-function copyRWPlain(id){const el=document.getElementById('rwc-'+id);if(el){navigator.clipboard.writeText(el.textContent);showToast('Plain text copied');}}
+function copyRW(id){const el=document.getElementById('rwc-'+id);if(el){navigator.clipboard.writeText(el.innerText).then(()=>showToast('Copied')).catch(()=>showToast('Copy failed — select text manually'));}}
+function copyRWPlain(id){const el=document.getElementById('rwc-'+id);if(el){navigator.clipboard.writeText(el.textContent).then(()=>showToast('Plain text copied')).catch(()=>showToast('Copy failed — select text manually'));}}
 
 function copyAllSections() {
   if (!analysis) { showToast('Run an analysis first'); return; }
@@ -1290,8 +1301,7 @@ function copyAllSections() {
   if (analysis.rewrittenSkills)     parts.push('CORE COMPETENCIES & SKILLS\n' + '─'.repeat(42) + '\n' + analysis.rewrittenSkills.trim());
   if (analysis.rewrittenExperience) parts.push('EXPERIENCE HIGHLIGHTS\n' + '─'.repeat(42) + '\n' + (analysis.rewrittenExperience || '').replace(/\\n/g,'\n').trim());
   if (parts.length === 0) { showToast('No rewritten sections yet'); return; }
-  navigator.clipboard.writeText(parts.join('\n\n'));
-  showToast('All ' + parts.length + ' rewritten sections copied');
+  navigator.clipboard.writeText(parts.join('\n\n')).then(()=>showToast('All ' + parts.length + ' rewritten sections copied')).catch(()=>showToast('Copy failed — select text manually'));
 }
 
 function renderCoverLetterPane() {
@@ -1514,7 +1524,7 @@ function shareResult() {
     // Fallback: copy to clipboard + show share options
     navigator.clipboard.writeText(shareText).then(() => {
       showToast('Share text copied paste it on LinkedIn or Twitter!');
-    });
+    }).catch(() => showToast('Copy failed — select text manually'));
   }
 }
 function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -1895,7 +1905,7 @@ async function matchResearchCompany() {
   const card = document.getElementById('matchIntelCard');
   btn.disabled = true; btn.textContent = '⏳';
   card.style.display = 'block';
-  card.innerHTML = '<span style="color:#8a87a0">Researching ' + company + '...</span>';
+  card.innerHTML = '<span style="color:#8a87a0">Researching ' + escH(company) + '...</span>';
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
@@ -1909,9 +1919,9 @@ async function matchResearchCompany() {
     const intel = jmIntel ? JSON.parse(jmIntel[0]) : null;
     if (!intel) throw new Error('No JSON in response');
     window.matchCompanyIntel = intel;
-    card.innerHTML = `<strong style="color:#38d9c0">${company}</strong> &middot; ${intel.industry || ''} &middot; ${intel.size || ''}<br>
-      <span style="color:#e6c668">Interview style:</span> ${intel.interviewStyle || '—'}<br>
-      <span style="color:#e6c668">What they look for:</span> ${intel.whatTheyLookFor || '—'}<br>
+    card.innerHTML = `<strong style="color:#38d9c0">${escH(company)}</strong> &middot; ${escH(intel.industry || '')} &middot; ${escH(intel.size || '')}<br>
+      <span style="color:#e6c668">Interview style:</span> ${escH(intel.interviewStyle || '—')}<br>
+      <span style="color:#e6c668">What they look for:</span> ${escH(intel.whatTheyLookFor || '—')}<br>
       <span style="font-size:11px;color:#8a87a0">Intel injected into cover letter &amp; LinkedIn optimizer</span>`;
     showToast('Company intel loaded');
   } catch(e) {
@@ -2049,7 +2059,7 @@ function renderVersionsPanel() {
 <script>
 async function runSkillsGap() {
   const jobDesc = document.getElementById('gapJobDesc')?.value?.trim();
-  if (!jobDesc || jobDesc.length < 50) { alert('Please paste a job description (at least 50 characters)'); return; }
+  if (!jobDesc || jobDesc.length < 50) { showToast('Please paste a job description (at least 50 characters)'); return; }
 
   const resume = document.getElementById('gapResume')?.value?.trim() || '';
   const btn    = document.getElementById('gapBtn');
@@ -2077,9 +2087,12 @@ async function runSkillsGap() {
 
     let parsed;
     try {
-      parsed = JSON.parse(data.answer.replace(/```json|```/g,'').trim());
+      const rawSg = (data.answer || '').replace(/```json|```/g,'');
+      const jmSg  = rawSg.match(/\{[\s\S]*\}/);
+      if (!jmSg) throw new Error('no json');
+      parsed = JSON.parse(jmSg[0]);
     } catch(e) {
-      result.innerHTML = `<div style="background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:20px;white-space:pre-wrap;font-size:13px;color:var(--tx);line-height:1.7">${data.answer}</div>`;
+      result.innerHTML = `<div style="background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:20px;white-space:pre-wrap;font-size:13px;color:var(--tx);line-height:1.7">${escH(data.answer || '')}</div>`;
       return;
     }
 
@@ -2089,15 +2102,15 @@ async function runSkillsGap() {
     const applyIcon  = parsed.applyNow ? '✅' : '⏳';
 
     const mustHaveHtml = (parsed.mustHave || []).map(s =>
-      `<span class="skill-chip ${s.inResume ? 'skill-have' : 'skill-missing'}">${s.inResume ? '✓' : '✗'} ${s.skill}</span>`
+      `<span class="skill-chip ${s.inResume ? 'skill-have' : 'skill-missing'}">${s.inResume ? '✓' : '✗'} ${escH(s.skill)}</span>`
     ).join('');
 
     const quickWinHtml = (parsed.quickWins || []).map(s =>
-      `<span class="skill-chip skill-learn">⚡ ${s}</span>`
+      `<span class="skill-chip skill-learn">⚡ ${escH(s)}</span>`
     ).join('');
 
     const dealHtml = (parsed.dealbreakers || []).map(s =>
-      `<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;color:#ef5f5f"><span>⚠</span>${s}</div>`
+      `<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;color:#ef5f5f"><span>⚠</span>${escH(s)}</div>`
     ).join('');
 
     const keywordHtml = (parsed.keywordsToAdd || []).map(k =>
@@ -2172,7 +2185,7 @@ async function runSkillsGap() {
     `;
 
   } catch(err) {
-    result.innerHTML = `<div style="color:var(--re);font-size:13px;padding:16px">${err.message}</div>`;
+    result.innerHTML = `<div style="color:var(--re);font-size:13px;padding:16px">${escH(err.message)}</div>`;
   } finally {
     btn.disabled = false;
     btn.textContent = 'Analyze my fit →';

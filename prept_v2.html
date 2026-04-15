@@ -233,13 +233,19 @@ textarea.ty-input{resize:vertical;min-height:70px;line-height:1.5}
   --inp-bg:#111120;--inp-border:rgba(255,255,255,0.09);
   --card-bg:#0f0f1c;--card-border:rgba(255,255,255,0.08);
   --nav-bg:rgba(6,6,13,0.95);--placeholder:#3a3858;
+  --vi2:#a498ff;--vd:rgba(123,109,244,0.08);
+  --gold:#c8a84b;--gold2:#e6c668;--gd:rgba(200,168,75,0.09);
+  --re:#ef5f5f;--gr:#45de7a;
 }
 :root.light{
   --bg:#f4f4f8;--s1:#eaeaf0;--s2:#ffffff;
-  --tx:#0f0f1c;--tx2:#3a3858;--tx3:#8a87a0;
+  --tx:#0f0f1c;--tx2:#3a3858;--tx3:#5a5770;
   --inp-bg:#ffffff;--inp-border:rgba(0,0,0,0.12);
   --card-bg:#ffffff;--card-border:rgba(0,0,0,0.08);
   --nav-bg:rgba(244,244,248,0.97);--placeholder:#9090a8;
+  --vi2:#5a50c4;--vd:rgba(123,109,244,0.07);
+  --gold:#b8900a;--gold2:#a07800;--gd:rgba(200,168,75,0.1);
+  --re:#c0392b;--gr:#1a7a3c;
 }
 html,body{transition:background 0.3s,color 0.3s}
 
@@ -336,6 +342,49 @@ html,body{transition:background 0.3s,color 0.3s}
 :root.light .form-group input, :root.light .form-group select, :root.light .form-group textarea { color: #0f0f1c; }
 :root.light .tp-logo-text { color: #0f0f1c; }
 :root.light .trust-divider { background: rgba(0,0,0,0.1); }
+
+/* ── APP UI LIGHT MODE ── */
+:root.light nav { background: rgba(244,244,248,0.97) !important; border-bottom-color: rgba(0,0,0,0.08) !important; }
+:root.light .nav-logo { color: #b8900a; }
+:root.light .nav-btn-ghost { border-color: rgba(0,0,0,0.14); color: #3a3858; }
+:root.light .nav-btn-ghost:hover { border-color: rgba(0,0,0,0.25); color: #0f0f1c; }
+:root.light .app { background: var(--bg); }
+:root.light .sidebar { background: #f0f0f8; border-right-color: rgba(0,0,0,0.08); }
+:root.light .sidebar-section { color: #5a5770; }
+:root.light .sidebar-input { background: #ffffff; border-color: rgba(0,0,0,0.12); color: #0f0f1c; }
+:root.light .sidebar-input::placeholder { color: #9090a8; }
+:root.light .sector-btn { background: #ffffff; border-color: rgba(0,0,0,0.1); color: #3a3858; }
+:root.light .sector-btn:hover { border-color: rgba(123,109,244,0.4); color: #5a50c4; }
+:root.light .sector-btn.on { background: rgba(123,109,244,0.1); border-color: rgba(123,109,244,0.35); color: #5a50c4; }
+:root.light .mode-tabs { background: #e4e4f0; }
+:root.light .mode-tab { color: #5a5770; }
+:root.light .mode-tab:hover:not(.on) { background: rgba(0,0,0,0.06); color: #3a3858; }
+:root.light .chat-area { background: #f4f4f8; }
+:root.light .msg-a { background: rgba(123,109,244,0.07); border-color: rgba(123,109,244,0.15); }
+:root.light .msg-a .msg-label { color: var(--vi2); }
+:root.light .msg-bubble { color: #1a1a2e; }
+:root.light .stream-cursor { background: var(--vi2); }
+:root.light .coaching-tip { color: #1a7a3c; background: rgba(69,222,122,0.08); border-color: rgba(69,222,122,0.2); }
+:root.light .msg-system, :root.light .msg-system .msg-bubble { background: rgba(0,0,0,0.04); color: #3a3858; }
+:root.light .msg-q .msg-bubble { color: #2d2b45; }
+:root.light .meta-badge { color: #5a5770; border-color: rgba(0,0,0,0.1); }
+:root.light .meta-copy, :root.light .meta-challenge { color: #5a50c4; }
+:root.light .answer-meta { border-top-color: rgba(0,0,0,0.06); }
+/* hardcoded inline colors overrides */
+:root.light [style*="color:#edeaf7"] { color: #0f0f1c !important; }
+:root.light [style*="color:#ccc9e0"] { color: #3a3858 !important; }
+:root.light [style*="color:#8a87a0"] { color: #5a5770 !important; }
+:root.light [style*="background:rgba(255,255,255,0.05)"] { background: rgba(0,0,0,0.04) !important; }
+:root.light [style*="background:rgba(255,255,255,0.06)"] { background: rgba(0,0,0,0.05) !important; }
+:root.light [style*="border:1px solid rgba(255,255,255,0.06)"] { border-color: rgba(0,0,0,0.08) !important; }
+:root.light [style*="border:1px solid rgba(255,255,255,0.08)"] { border-color: rgba(0,0,0,0.09) !important; }
+:root.light [style*="border:1px solid rgba(255,255,255,0.1)"] { border-color: rgba(0,0,0,0.11) !important; }
+:root.light [style*="background:#06060d"] { background: #f4f4f8 !important; }
+:root.light [style*="background:#07070e"] { background: #f4f4f8 !important; }
+:root.light [style*="background:#0f0f1c"] { background: #ffffff !important; }
+:root.light [style*="background:#111120"] { background: #ffffff !important; }
+:root.light [style*="background:#08080f"] { background: #f0f0f8 !important; }
+:root.light [style*="background:#1a1a2e"] { background: #ffffff !important; }
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -759,6 +808,21 @@ html,body{transition:background 0.3s,color 0.3s}
 <script>
 // Utility — HTML-escape to prevent XSS in dynamic innerHTML
 const escH = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+// Toast notification
+function showToast(msg) {
+  let el = document.getElementById('preptToast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'preptToast';
+    el.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#45de7a;color:#06060d;padding:10px 18px;border-radius:10px;font-family:Outfit,sans-serif;font-size:14px;font-weight:700;z-index:9999;opacity:0;transition:opacity 0.25s;pointer-events:none';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = '0'; }, 2600);
+}
 
 const SECTORS = ['General','Technology','Healthcare','Legal','Finance','Sales','Real Estate','Property Management','Retail','Logistics','Education','Hospitality','Customer Service','Skilled Trades','Admin/Office','Remote Work'];
 let currentSector = 'General';
@@ -1851,16 +1915,17 @@ async function runSalaryCoach() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.message);
 
+    window._salaryAnswer = data.answer;
     result.innerHTML = `
-      <div style="background:rgba(69,222,122,0.07);border:1px solid rgba(69,222,122,0.15);border-radius:10px;padding:20px;white-space:pre-wrap;font-size:14px;color:#edeaf7;line-height:1.8">
+      <div style="background:rgba(69,222,122,0.07);border:1px solid rgba(69,222,122,0.15);border-radius:10px;padding:20px;white-space:pre-wrap;font-size:14px;color:var(--tx);line-height:1.8">
         ${escH(data.answer)}
       </div>
-      <button onclick="navigator.clipboard.writeText(${JSON.stringify(data.answer)}).then(()=>showToast('Copied to clipboard'))"
+      <button onclick="navigator.clipboard.writeText(window._salaryAnswer).then(()=>showToast('Copied to clipboard')).catch(()=>showToast('Copy failed'))"
         style="margin-top:10px;padding:8px 16px;background:var(--gd);border:1px solid rgba(200,168,75,0.2);border-radius:8px;color:#e6c668;font-size:13px;font-weight:600;cursor:pointer">
         Copy strategy
       </button>`;
   } catch(e) {
-    result.innerHTML = `<div style="color:var(--re);font-size:13px">Error: ${e.message}</div>`;
+    result.innerHTML = `<div style="color:var(--re);font-size:13px">Error: ${escH(e.message)}</div>`;
   }
 }
 
@@ -1891,31 +1956,23 @@ async function runVideoCoach() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.message);
 
+    window._videoAnswer = data.answer;
     result.innerHTML = `
-      <div style="background:rgba(123,109,244,0.07);border:1px solid rgba(123,109,244,0.2);border-radius:10px;padding:20px;white-space:pre-wrap;font-size:14px;color:#edeaf7;line-height:1.8">
+      <div style="background:rgba(123,109,244,0.07);border:1px solid rgba(123,109,244,0.2);border-radius:10px;padding:20px;white-space:pre-wrap;font-size:14px;color:var(--tx);line-height:1.8">
         ${escH(data.answer)}
       </div>
-      <button onclick="navigator.clipboard.writeText(${JSON.stringify(data.answer)}).then(()=>showToast('Copied to clipboard'))"
+      <button onclick="navigator.clipboard.writeText(window._videoAnswer).then(()=>showToast('Copied to clipboard')).catch(()=>showToast('Copy failed'))"
         style="margin-top:10px;padding:8px 16px;background:var(--vd);border:1px solid rgba(123,109,244,0.2);border-radius:8px;color:#a498ff;font-size:13px;font-weight:600;cursor:pointer">
         Copy response
       </button>`;
   } catch(e) {
-    result.innerHTML = `<div style="color:var(--re);font-size:13px">Error: ${e.message}</div>`;
+    result.innerHTML = `<div style="color:var(--re);font-size:13px">Error: ${escH(e.message)}</div>`;
   }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 // SESSION HISTORY + PROGRESS DASHBOARD
 // ══════════════════════════════════════════════════════════════════════════════
-let _sb = null;
-function getSB() {
-  if (!_sb) {
-    const { createClient } = supabase;
-    _sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-  return _sb;
-}
-
 // ── Q&A SESSION HISTORY (localStorage, last 5 sessions) ──────────────────────
 function saveQAHistory(session) {
   try {
@@ -2065,7 +2122,7 @@ async function renderProgress() {
       </div>
       ${renderQAHistoryCards()}`;
   } catch(e) {
-    el.innerHTML = `<div style="color:#ef5f5f;font-size:13px;padding:16px">Could not load sessions: ${e.message}</div>`;
+    el.innerHTML = `<div style="color:#ef5f5f;font-size:13px;padding:16px">Could not load sessions: ${escH(e.message)}</div>`;
   }
 }
 
