@@ -86,6 +86,13 @@ textarea.sidebar-input{resize:vertical;min-height:80px;max-height:160px;line-hei
 .msg-a .msg-label{font-size:11px;font-weight:700;color:var(--vi2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
 .msg-a .msg-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px}
 
+/* MOCK PROGRESS BAR */
+.mock-progress-wrap{display:none;align-items:center;gap:10px;padding:10px 16px;background:rgba(123,109,244,0.06);border-bottom:1px solid rgba(123,109,244,0.12);flex-shrink:0}
+.mock-progress-label{font-size:11px;font-weight:700;color:#a498ff;white-space:nowrap}
+.mock-progress-track{flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
+.mock-progress-fill{height:100%;background:linear-gradient(90deg,#7b6df4,#a498ff);border-radius:3px;transition:width 0.5s ease}
+.mock-export-btn{padding:4px 12px;background:rgba(200,168,75,0.1);border:1px solid rgba(200,168,75,0.25);border-radius:12px;color:#e6c668;font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;display:none}
+
 /* STAR BREAKDOWN CARD */
 .star-card{margin:0 0 12px;max-width:820px;background:rgba(123,109,244,0.05);border:1px solid rgba(123,109,244,0.18);border-radius:10px;padding:14px 16px}
 .star-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8a87a0;margin-bottom:10px}
@@ -540,6 +547,12 @@ html,body{transition:background 0.3s,color 0.3s}
 
     <!-- LIVE / MOCK / DEBRIEF VIEW -->
     <div id="coachView" style="display:flex;flex-direction:column;flex:1;min-height:0">
+      <!-- Mock interview progress bar (hidden until mock starts) -->
+      <div class="mock-progress-wrap" id="mockProgressWrap">
+        <span class="mock-progress-label" id="mockProgressLabel">Question 0 of 5</span>
+        <div class="mock-progress-track"><div class="mock-progress-fill" id="mockProgressFill" style="width:0%"></div></div>
+        <button class="mock-export-btn" id="mockExportBtn" onclick="exportSession()">⬇ Export</button>
+      </div>
       <div class="chat-area" id="chatArea">
         <div class="empty-state" id="emptyState">
           <div class="empty-icon">🎙</div>
@@ -744,6 +757,9 @@ html,body{transition:background 0.3s,color 0.3s}
 </div>
 
 <script>
+// Utility — HTML-escape to prevent XSS in dynamic innerHTML
+const escH = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
 const SECTORS = ['General','Technology','Healthcare','Legal','Finance','Sales','Real Estate','Property Management','Retail','Logistics','Education','Hospitality','Customer Service','Skilled Trades','Admin/Office','Remote Work'];
 let currentSector = 'General';
 let currentMode   = 'live';
@@ -979,7 +995,13 @@ function setMode(mode) {
   else if (mode === 'duo')        { if (duoView)      { duoView.style.display = 'flex'; } }
   else {
     if (coachView) coachView.style.display = 'flex';
-    if (mode === 'mock')    authReady ? startMock() : setTimeout(() => startMock(), 1500);
+    if (mode === 'mock') {
+      authReady ? startMock() : setTimeout(() => startMock(), 1500);
+    } else {
+      // Hide progress bar when leaving mock mode
+      const pw = document.getElementById('mockProgressWrap');
+      if (pw) pw.style.display = 'none';
+    }
     if (mode === 'debrief') showDebrief();
   }
 }
@@ -1112,7 +1134,8 @@ function getContext() {
 
 async function callAPI(payload) {
   const res  = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) { data._httpError = true; }
   return { res, data };
 }
 
@@ -1130,21 +1153,27 @@ async function callAPIStream(payload, onChunk) {
   const reader  = res.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '', fullText = '', meta = {};
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop();
-    for (const line of lines) {
-      if (!line.startsWith('data: ')) continue;
-      try {
-        const ev = JSON.parse(line.slice(6));
-        if (ev.text)  { fullText += ev.text; onChunk(ev.text, fullText); }
-        if (ev.done)  { meta = { plan: ev.plan, remaining: ev.remaining }; }
-        if (ev.error) { return { ok: false, error: ev.message }; }
-      } catch(e) {}
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const ev = JSON.parse(line.slice(6));
+          if (ev.text)  { fullText += ev.text; onChunk(ev.text, fullText); }
+          if (ev.done)  { meta = { plan: ev.plan, remaining: ev.remaining }; }
+          if (ev.error) { return { ok: false, error: ev.message }; }
+        } catch(e) {}
+      }
     }
+  } catch(streamErr) {
+    // Network dropped mid-stream — return what we have so far
+    if (fullText) return { ok: true, fullText, partial: true, ...meta };
+    return { ok: false, error: 'Connection lost. Please try again.' };
   }
   return { ok: true, fullText, ...meta };
 }
@@ -1187,9 +1216,11 @@ async function sendMockAnswer(q) {
     });
     if (res.ok) {
       const d = await res.json();
-      evalData = JSON.parse((d.answer || '').replace(/```json|```/g, '').trim());
+      const raw = (d.answer || '').replace(/```json|```/g, '');
+      const jm  = raw.match(/\{[\s\S]*\}/);
+      if (jm) evalData = JSON.parse(jm[0]);
     }
-  } catch(e) { /* show graceful fallback */ }
+  } catch(e) { /* evalData stays null — graceful fallback scores shown */ }
 
   removeThinking();
 
@@ -1219,23 +1250,27 @@ async function sendMockAnswer(q) {
   `;
   area.appendChild(starCard);
 
-  // Model answer bubble
+  // Model answer bubble with copy action
   if (modelAnswer) {
     const { formatted, tipHTML } = parseAnswer(modelAnswer);
     const mBubble = document.createElement('div');
     mBubble.className = 'msg msg-a';
-    mBubble.innerHTML = `<div class="msg-label">💬 Model answer (compare to yours)</div><div class="msg-body">${formatted}${tipHTML}</div>`;
+    const encoded = encodeURIComponent(modelAnswer);
+    mBubble.innerHTML = `<div class="msg-label">💬 Model answer (compare to yours)</div><div class="msg-body">${formatted}${tipHTML}</div><div class="msg-meta"><span class="meta-badge meta-copy" onclick="copyAnswer(this,'${encoded}')">📋 Copy model answer</span></div>`;
     area.appendChild(mBubble);
   }
 
   // Track mock progress
   window._mockAnswerCount = (window._mockAnswerCount || 0) + 1;
-  sessionAnswers.push({ question: lastMockQuestion, answer: q, score: overallScore });
+  sessionAnswers.push({ question: lastMockQuestion, answer: q, score: overallScore, starScores: ss });
+  updateMockProgress(window._mockAnswerCount, (window._mockSessionQuestions||[]).length||5);
 
   const totalQs = (window._mockSessionQuestions || []).length || 5;
   if (window._mockAnswerCount >= totalQs) {
     // All questions answered — show debrief prompt
     addMsg('system', '📋 Mock Complete', `You completed all ${totalQs} questions. <button onclick="showDebrief()" style="background:#7b6df4;border:none;color:#fff;padding:4px 14px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-left:8px">View full debrief →</button>`);
+    const expBtn = document.getElementById('mockExportBtn');
+    if (expBtn) expBtn.style.display = 'inline-block';
     document.getElementById('sendBtn').disabled = false;
     area.scrollTop = area.scrollHeight;
     return;
@@ -1464,6 +1499,44 @@ const MOCK_QUESTIONS = [
   "Describe your most significant professional accomplishment."
 ];
 
+function updateMockProgress(answered, total) {
+  const label = document.getElementById('mockProgressLabel');
+  const fill  = document.getElementById('mockProgressFill');
+  if (label) label.textContent = `Question ${Math.min(answered + 1, total)} of ${total}`;
+  if (fill)  fill.style.width  = (answered / total * 100).toFixed(1) + '%';
+}
+
+function exportSession() {
+  if (!sessionAnswers.length) { showToast('No session to export yet'); return; }
+  const role    = document.getElementById('roleInput')?.value?.trim() || 'Interview';
+  const company = document.getElementById('companyInput')?.value?.trim() || '';
+  const date    = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  const lines   = [];
+  lines.push(`PREPT AI – Mock Interview Session`);
+  lines.push(`${role}${company ? ' at ' + company : ''} · ${date}`);
+  lines.push('='.repeat(56));
+  lines.push('');
+  sessionAnswers.forEach((item, i) => {
+    lines.push(`Q${i+1}: ${item.question}`);
+    lines.push('─'.repeat(42));
+    lines.push(`Your answer:\n${item.answer}`);
+    if (item.starScores) {
+      const ss = item.starScores;
+      lines.push(`STAR scores: S=${ss.S}/10  T=${ss.T}/10  A=${ss.A}/10  R=${ss.R}/10  Overall=${item.score||'–'}/100`);
+    }
+    lines.push('');
+  });
+  lines.push('='.repeat(56));
+  lines.push('Exported from PREPT AI · preptai.co');
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `PREPT_Session_${date.replace(/\s/g,'_')}.txt`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  showToast('Session exported');
+}
+
 async function startMock() {
   sessionAnswers = [];
   window._mockAnswerCount = 0;
@@ -1493,10 +1566,14 @@ async function startMock() {
       });
       const data = await res.json();
       if (res.ok && data.answer) {
-        const parsed = JSON.parse(data.answer.replace(/```json|```/g,'').trim());
-        if (Array.isArray(parsed) && parsed.length >= 3) qs = parsed;
+        const raw = data.answer.replace(/```json|```/g,'');
+        const jm  = raw.match(/\[[\s\S]*\]/);
+        if (jm) {
+          const parsed = JSON.parse(jm[0]);
+          if (Array.isArray(parsed) && parsed.length >= 3) qs = parsed;
+        }
       }
-    } catch(e) { /* fall back to hardcoded */ }
+    } catch(e) { /* fall back to hardcoded questions */ }
   }
 
   // Fall back to hardcoded if API unavailable or no role/JD
@@ -1509,6 +1586,11 @@ async function startMock() {
 
   // Store for follow-up questions during session
   window._mockSessionQuestions = qs;
+
+  // Show and reset progress bar
+  const pw = document.getElementById('mockProgressWrap');
+  if (pw) { pw.style.display = 'flex'; }
+  updateMockProgress(0, qs.length);
 }
 
 async function showDebrief() {
@@ -1564,7 +1646,7 @@ async function showDebrief() {
         </div>
         <div style="color:#ccc9e0;margin-top:4px;font-size:12px">Replace filler pauses with 1-2 seconds of silence. It sounds more confident, not less.</div>
       </div>` : '<div style="margin-top:12px;padding:10px 14px;background:rgba(69,222,122,0.07);border:1px solid rgba(69,222,122,0.15);border-radius:8px;font-size:13px;color:#45de7a">No filler words detected this session.</div>'
-    }<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:12px;color:#8a87a0">Know someone job hunting?</span><a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fpreptai.co" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(10,102,194,0.1);border:1px solid rgba(10,102,194,0.25);color:#4a90d9;text-decoration:none;font-size:12px;font-weight:600">Share on LinkedIn</a><a href="https://twitter.com/intent/tweet?text=Using%20PREPT%20AI%20for%20live%20interview%20coaching%20%E2%80%94%20coached%20answers%20in%203%20seconds.%20preptai.co" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(29,155,240,0.08);border:1px solid rgba(29,155,240,0.2);color:#4a90d9;text-decoration:none;font-size:12px;font-weight:600">Share on X</a></div>`);
+    }<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button onclick="exportSession()" style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;background:rgba(200,168,75,0.1);border:1px solid rgba(200,168,75,0.25);color:#e6c668;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer">⬇ Download session</button><span style="font-size:12px;color:#8a87a0">Know someone job hunting?</span><a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fpreptai.co" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(10,102,194,0.1);border:1px solid rgba(10,102,194,0.25);color:#4a90d9;text-decoration:none;font-size:12px;font-weight:600">Share on LinkedIn</a><a href="https://twitter.com/intent/tweet?text=Using%20PREPT%20AI%20for%20live%20interview%20coaching%20%E2%80%94%20coached%20answers%20in%203%20seconds.%20preptai.co" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(29,155,240,0.08);border:1px solid rgba(29,155,240,0.2);color:#4a90d9;text-decoration:none;font-size:12px;font-weight:600">Share on X</a></div>`);
 }
 
 // ── MIC ───────────────────────────────────────────────────────────────────────
