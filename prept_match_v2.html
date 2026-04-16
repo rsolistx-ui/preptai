@@ -397,9 +397,12 @@ footer span{color:var(--gold);font-weight:600}
 :root.light .nav-link { background: #ffffff; border-color: rgba(0,0,0,0.12); color: #3a3858; }
 :root.light .themeBtn { color: #3a3858 !important; border-color: rgba(0,0,0,0.15) !important; }
 
-/* Keyword highlights — solid amber chip for legibility on white background */
-:root.light .rw-content .kw-hi { background: #fde68a !important; color: #78350f !important; font-weight: 600 !important; border-radius: 3px !important; padding: 0 3px !important; }
-:root.light .pb-text .hi { background: #fde68a !important; color: #78350f !important; font-weight: 600 !important; border-radius: 3px !important; padding: 0 2px !important; }
+/* Keyword highlights — legible in both dark and light mode */
+/* Dark mode: bright gold text on subtle amber tint */
+.rw-content .kw-hi { background: rgba(200,168,75,0.22) !important; border-radius: 3px !important; padding: 0 3px !important; color: #e6c668 !important; font-weight: 700 !important; }
+/* Light mode: solid amber chip with near-black text */
+:root.light .rw-content .kw-hi { background: #f59e0b !important; color: #1c0a00 !important; font-weight: 700 !important; border-radius: 3px !important; padding: 0 3px !important; }
+:root.light .pb-text .hi { background: #f59e0b !important; color: #1c0a00 !important; font-weight: 700 !important; border-radius: 3px !important; padding: 0 2px !important; }
 /* Inline rgba(255,255,255,...) backgrounds — invisible on light bg */
 :root.light [style*="background:rgba(255,255,255,0.04)"] { background: rgba(0,0,0,0.03) !important; }
 :root.light [style*="border:1px solid rgba(255,255,255,0.08)"] { border-color: rgba(0,0,0,0.09) !important; }
@@ -642,6 +645,33 @@ footer span{color:var(--gold);font-weight:600}
 <div class="toast" id="toast"></div>
 
 <script>
+// ── THEME ─────────────────────────────────────────────────────────────────────
+let isLight = localStorage.getItem('preptTheme') === 'light';
+
+function applyTheme() {
+  document.documentElement.classList.toggle('light', isLight);
+  const icon  = document.getElementById('themeIcon');
+  const label = document.getElementById('themeLabel');
+  const btn   = document.getElementById('themeBtn');
+  if (icon)  icon.textContent  = isLight ? '☀️' : '🌙';
+  if (label) label.textContent = isLight ? 'Dark mode' : 'Light mode';
+  if (btn) {
+    btn.style.background   = isLight ? 'rgba(200,168,75,0.12)' : 'rgba(123,109,244,0.12)';
+    btn.style.borderColor  = isLight ? 'rgba(200,168,75,0.3)'  : 'rgba(123,109,244,0.3)';
+    btn.style.color        = isLight ? '#c8a84b' : '#a498ff';
+    btn.onmouseover = () => btn.style.background = isLight ? 'rgba(200,168,75,0.22)' : 'rgba(123,109,244,0.22)';
+    btn.onmouseout  = () => btn.style.background = isLight ? 'rgba(200,168,75,0.12)' : 'rgba(123,109,244,0.12)';
+  }
+}
+
+function toggleTheme() {
+  isLight = !isLight;
+  localStorage.setItem('preptTheme', isLight ? 'light' : 'dark');
+  applyTheme();
+}
+
+applyTheme(); // Apply on load, respects saved preference from prept_v2.html too
+
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let resumeContent = '', jobContent = '', analysis = null, coverLetter = '';
 let apps = [];
