@@ -2,11 +2,13 @@
   "manifest_version": 3,
   "name": "PREPT AI — Job Application Copilot",
   "short_name": "PREPT AI",
-  "description": "Detect job postings, optimize your resume, and prep for interviews — all in one click. Works on LinkedIn, Indeed, Glassdoor, and 10+ more sites.",
-  "version": "1.0.0",
+  "description": "One-click resume optimizer and interview coach. Detects job postings, extracts keywords, and launches PREPT with everything pre-filled. Works on 15+ job sites.",
+  "version": "2.0.0",
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "contextMenus",
+    "sidePanel"
   ],
   "host_permissions": [
     "*://www.linkedin.com/*",
@@ -23,7 +25,12 @@
     "*://*.smartrecruiters.com/*",
     "*://jobs.jobvite.com/*",
     "*://*.icims.com/*",
-    "*://*.workday.com/*"
+    "*://*.workday.com/*",
+    "*://*.recruitee.com/*",
+    "*://*.teamtailor.com/*",
+    "*://*.rippling.com/*",
+    "*://*.dover.com/*",
+    "*://*.notion.site/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -45,7 +52,9 @@
         "*://*.ashbyhq.com/jobs/*",
         "*://*.smartrecruiters.com/*/posting/*",
         "*://jobs.jobvite.com/*/job/*",
-        "*://*.icims.com/jobs/*/job*"
+        "*://*.icims.com/jobs/*/job*",
+        "*://*.recruitee.com/o/*",
+        "*://*.teamtailor.com/jobs/*"
       ],
       "js": ["content.js"],
       "css": ["styles/content.css"],
@@ -61,6 +70,9 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
+  },
+  "side_panel": {
+    "default_path": "sidepanel/sidepanel.html"
   },
   "icons": {
     "16": "icons/icon16.png",

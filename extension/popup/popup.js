@@ -1,112 +1,70 @@
-// PREPT AI Extension Popup
+// PREPT AI Popup v2
 
 const PREPT_URL = 'https://preptai.app';
 
 function encodeJob(data) {
-  try {
-    return btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-  } catch {
-    return '';
-  }
-}
-
-function truncate(str, len) {
-  if (!str) return '';
-  return str.length > len ? str.slice(0, len).trimEnd() + '\u2026' : str;
+  try { return btoa(unescape(encodeURIComponent(JSON.stringify(data)))); }
+  catch { return ''; }
 }
 
 function openPrept(page, jobData) {
   const encoded = encodeJob(jobData);
   if (!encoded) return;
-  const url = `${PREPT_URL}/${page}#prept=${encoded}`;
-  chrome.tabs.create({ url });
+  chrome.tabs.create({ url: `${PREPT_URL}/${page}#prept=${encoded}` });
+  window.close();
 }
 
-// ── Detected job view ──────────────────────────────────────────────────────
+// ── Open side panel for current tab ───────────────────────────────────────
+document.getElementById('btn-sidepanel').addEventListener('click', async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab) chrome.sidePanel.open({ tabId: tab.id });
+  window.close();
+});
 
-async function tryLoadDetectedJob() {
-  let result;
-  try {
-    result = await chrome.storage.session.get(['detectedJob', 'detectedUrl']);
-  } catch {
-    return false;
-  }
+// ── Detected job ───────────────────────────────────────────────────────────
+async function loadDetected() {
+  const result = await chrome.storage.session.get(['detectedJob', 'detectedUrl']);
+  const job = result.detectedJob;
+  if (!job?.description) return;
 
-  const { detectedJob: job, detectedUrl: url } = result || {};
-  if (!job || !job.description) return false;
+  document.getElementById('detected-banner').classList.remove('hidden');
+  document.getElementById('det-title').textContent =
+    job.title ? (job.title.length > 55 ? job.title.slice(0, 55) + '…' : job.title) : 'Untitled';
+  document.getElementById('det-company').textContent = job.company || '';
 
-  // Show detected view
-  document.getElementById('view-detected').classList.remove('hidden');
-  document.getElementById('view-manual').classList.add('hidden');
+  // Show direct action buttons alongside side panel CTA
+  document.getElementById('btn-optimize').classList.remove('hidden');
+  document.getElementById('btn-coach').classList.remove('hidden');
 
-  document.getElementById('det-title').textContent = truncate(job.title, 70) || 'Untitled position';
-  document.getElementById('det-company').textContent = truncate(job.company, 60) || 'Unknown company';
-
-  try {
-    const domain = url ? new URL(url).hostname.replace('www.', '') : '';
-    document.getElementById('det-source').textContent = domain || '';
-  } catch {}
-
-  document.getElementById('btn-det-optimize').addEventListener('click', () =>
-    openPrept('prept_match_v2.html', job)
-  );
-
-  document.getElementById('btn-det-coach').addEventListener('click', () =>
-    openPrept('prept_v2.html', job)
-  );
-
-  document.getElementById('btn-switch-manual').addEventListener('click', () => {
-    document.getElementById('view-detected').classList.add('hidden');
-    document.getElementById('view-manual').classList.remove('hidden');
-  });
-
-  return true;
+  document.getElementById('btn-optimize').addEventListener('click', () => openPrept('prept_match_v2.html', job));
+  document.getElementById('btn-coach').addEventListener('click', () => openPrept('prept_v2.html', job));
 }
 
-// ── Manual input view ──────────────────────────────────────────────────────
+// ── Manual input ───────────────────────────────────────────────────────────
+const jdEl = document.getElementById('manual-jd');
+const btnManOpt = document.getElementById('btn-man-opt');
+const btnManCoach = document.getElementById('btn-man-coach');
 
-function initManualView() {
-  const jdEl      = document.getElementById('manual-jd');
-  const titleEl   = document.getElementById('manual-title');
-  const companyEl = document.getElementById('manual-company');
-  const charCount = document.getElementById('jd-chars');
-  const btnOpt    = document.getElementById('btn-man-optimize');
-  const btnCoach  = document.getElementById('btn-man-coach');
+jdEl.addEventListener('input', () => {
+  const ok = jdEl.value.trim().length > 30;
+  btnManOpt.disabled = !ok;
+  btnManCoach.disabled = !ok;
+});
 
-  function update() {
-    const hasContent = jdEl.value.trim().length > 30;
-    btnOpt.disabled   = !hasContent;
-    btnCoach.disabled = !hasContent;
-    charCount.textContent = jdEl.value.length.toLocaleString();
-  }
-
-  jdEl.addEventListener('input', update);
-
-  btnOpt.addEventListener('click', () => {
-    openPrept('prept_match_v2.html', {
-      title: titleEl.value.trim(),
-      company: companyEl.value.trim(),
-      description: jdEl.value.trim(),
-    });
+btnManOpt.addEventListener('click', () => {
+  openPrept('prept_match_v2.html', {
+    title: document.getElementById('manual-title').value.trim(),
+    company: document.getElementById('manual-company').value.trim(),
+    description: jdEl.value.trim(),
   });
-
-  btnCoach.addEventListener('click', () => {
-    openPrept('prept_v2.html', {
-      title: titleEl.value.trim(),
-      company: companyEl.value.trim(),
-      description: jdEl.value.trim(),
-    });
+});
+btnManCoach.addEventListener('click', () => {
+  openPrept('prept_v2.html', {
+    title: document.getElementById('manual-title').value.trim(),
+    company: document.getElementById('manual-company').value.trim(),
+    description: jdEl.value.trim(),
   });
-}
+});
 
 // ── Init ───────────────────────────────────────────────────────────────────
-
-document.addEventListener('DOMContentLoaded', async () => {
-  initManualView();
-
-  const hasDetected = await tryLoadDetectedJob();
-  if (!hasDetected) {
-    // Default to manual view
-    document.getElementById('view-manual').classList.remove('hidden');
-  }
-});
+document.addEventListener('DOMContentLoaded', loadDetected);
