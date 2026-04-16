@@ -955,8 +955,9 @@ Return ONLY valid JSON (no markdown, no explanation):
     if (!res.ok) throw new Error(data.message || data.error || 'Something went wrong');
 
     const raw = data.answer || '';
-    const clean = raw.replace(/```json|```/g,'').trim();
-    analysis = JSON.parse(clean);
+    const jm  = raw.replace(/```json|```/g,'').match(/\{[\s\S]*\}/);
+    if (!jm) throw new Error('Could not parse response. Please try again.');
+    analysis = JSON.parse(jm[0]);
 
     // Save to analysis history
     saveAnalysisHistory({
@@ -1240,7 +1241,7 @@ function renderBullets(r) {
         <div class="bi-new-lbl">Rewritten</div>
         <div class="bi-new">${escH(b.rewritten)}</div>
         <div style="font-size:11px;color:var(--vi2);margin-top:5px">↑ ${escH(b.improvement)}</div>
-        <button class="bi-copy" onclick="navigator.clipboard.writeText(${JSON.stringify(b.rewritten)});showToast('Copied')">Copy rewritten bullet</button>
+        <button class="bi-copy" data-txt="${escH(b.rewritten)}" onclick="navigator.clipboard.writeText(this.dataset.txt).then(()=>showToast('Copied')).catch(()=>showToast('Copy failed'))">Copy rewritten bullet</button>
       </div>`).join('')}
     </div>`;
 }
@@ -1318,7 +1319,7 @@ function renderCoverLetterPane() {
     </div>
     <div class="cl-out" id="clOut">Click "Generate Cover Letter" takes about 10 seconds and will be tailored specifically to this job and your resume.</div>
     <div class="cl-acts" id="clActs" style="display:none">
-      <button class="rw-btn rw-primary" onclick="navigator.clipboard.writeText(coverLetter);showToast('Cover letter copied')">📋 Copy</button>
+      <button class="rw-btn rw-primary" onclick="navigator.clipboard.writeText(coverLetter).then(()=>showToast('Cover letter copied')).catch(()=>showToast('Copy failed — select text manually'))">📋 Copy</button>
       <button class="rw-btn rw-primary" onclick="downloadCoverLetter('docx')" style="background:#7b6df4">📄 DOCX</button>
       <button class="rw-btn rw-primary" onclick="downloadCoverLetter('pdf')" style="background:#4d4a66">🖨 PDF</button>
       <button class="rw-btn rw-sec" onclick="generateCL()">Regenerate</button>
@@ -1639,18 +1640,18 @@ function renderGapEntryEditor(entry) {
       </div>
       <div style="font-size:11px;color:var(--tx3);margin-bottom:16px;padding:7px 10px;background:rgba(245,165,42,0.07);border:1px solid rgba(245,165,42,0.18);border-radius:6px">
         ⚠ Template only — edit all fields to match your actual experience before using.
-        ${entry.disclaimer ? ' ' + entry.disclaimer : ''}
+        ${entry.disclaimer ? ' ' + escH(entry.disclaimer) : ''}
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
         <div>
           <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--tx3);display:block;margin-bottom:4px">Company</label>
-          <input id="ge_company" value="${entry.company || ''}" style="width:100%;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:13px;padding:8px 10px;border-radius:7px;outline:none"/>
-          <div style="font-size:10px;color:var(--tx3);margin-top:3px">${entry.companyType || ''}</div>
+          <input id="ge_company" value="${escH(entry.company || '')}" style="width:100%;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:13px;padding:8px 10px;border-radius:7px;outline:none"/>
+          <div style="font-size:10px;color:var(--tx3);margin-top:3px">${escH(entry.companyType || '')}</div>
         </div>
         <div>
           <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--tx3);display:block;margin-bottom:4px">Title</label>
-          <input id="ge_title" value="${entry.suggestedTitle || ''}" style="width:100%;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:13px;padding:8px 10px;border-radius:7px;outline:none"/>
+          <input id="ge_title" value="${escH(entry.suggestedTitle || '')}" style="width:100%;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:13px;padding:8px 10px;border-radius:7px;outline:none"/>
         </div>
       </div>
 
@@ -1686,13 +1687,13 @@ function renderGapEntryEditor(entry) {
           ${(entry.bullets || []).map((b, i) => `
             <div style="display:flex;gap:6px;margin-bottom:6px">
               <span style="color:#a498ff;font-weight:700;margin-top:9px;flex-shrink:0">•</span>
-              <textarea id="ge_b${i}" style="flex:1;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:13px;padding:8px 10px;border-radius:7px;outline:none;resize:vertical;min-height:52px;line-height:1.5">${b}</textarea>
+              <textarea id="ge_b${i}" style="flex:1;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:13px;padding:8px 10px;border-radius:7px;outline:none;resize:vertical;min-height:52px;line-height:1.5">${escH(b)}</textarea>
             </div>`).join('')}
         </div>
       </div>
 
-      ${entry.whyThisEntry ? `<div style="font-size:12px;color:var(--tx3);padding:8px 10px;background:rgba(56,217,192,0.06);border:1px solid rgba(56,217,192,0.15);border-radius:7px;margin-bottom:14px;line-height:1.5"><strong style="color:#38d9c0">Why this entry:</strong> ${entry.whyThisEntry}</div>` : ''}
-      ${(entry.skillsBridged||[]).length ? `<div style="font-size:11px;color:var(--tx3);margin-bottom:14px">Bridges: ${entry.skillsBridged.map(s=>`<span style="display:inline-block;padding:2px 8px;background:rgba(123,109,244,0.1);border:1px solid rgba(123,109,244,0.2);border-radius:4px;margin:2px 3px;color:#a498ff;font-weight:600">${s}</span>`).join('')}</div>` : ''}
+      ${entry.whyThisEntry ? `<div style="font-size:12px;color:var(--tx3);padding:8px 10px;background:rgba(56,217,192,0.06);border:1px solid rgba(56,217,192,0.15);border-radius:7px;margin-bottom:14px;line-height:1.5"><strong style="color:#38d9c0">Why this entry:</strong> ${escH(entry.whyThisEntry)}</div>` : ''}
+      ${(entry.skillsBridged||[]).length ? `<div style="font-size:11px;color:var(--tx3);margin-bottom:14px">Bridges: ${entry.skillsBridged.map(s=>`<span style="display:inline-block;padding:2px 8px;background:rgba(123,109,244,0.1);border:1px solid rgba(123,109,244,0.2);border-radius:4px;margin:2px 3px;color:#a498ff;font-weight:600">${escH(s)}</span>`).join('')}</div>` : ''}
 
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button onclick="insertGapEntry('append')" style="flex:1;min-width:160px;padding:10px 14px;background:linear-gradient(135deg,#45de7a,#38d9c0);border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:#06060d;cursor:pointer">+ Add to my resume</button>
@@ -1836,7 +1837,7 @@ function _doInsert(mode, entryText, resumeTA, feedback) {
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--tx3);margin-bottom:8px">Select the job entry to replace:</div>
       ${candidates.map(({line, idx}) => `
         <button onclick="doReplaceEntry(${idx})" style="display:block;width:100%;text-align:left;margin-bottom:4px;padding:8px 10px;background:var(--s3);border:1px solid var(--b1);border-radius:6px;color:var(--tx2);font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer;transition:border-color 0.15s" onmouseover="this.style.borderColor='rgba(123,109,244,0.4)'" onmouseout="this.style.borderColor=''">
-          ${line.includes('|') ? '📋 ' : ''}${line}
+          ${escH(line.includes('|') ? '📋 ' + line : line)}
         </button>
       `).join('')}
     `;
