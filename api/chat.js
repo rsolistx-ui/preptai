@@ -874,11 +874,11 @@ export default async function handler(req, res) {
           (targetSalary || '').slice(0,50)
         );
         userMsg = "Provide my salary negotiation strategy.";
-        maxTok = 900;
+        maxTok = 1200;
       } else if (mode === "skillsgap") {
         systemPrompt = buildSkillsGapPrompt(cleanJobDesc, cleanResume);
         userMsg = "Analyze the skills gap.";
-        maxTok = 800;
+        maxTok = 1400;
       } else if (mode === "asyncvideo") {
         systemPrompt = buildAsyncVideoPrompt(
           cleanMessage.slice(0,500),
@@ -886,7 +886,7 @@ export default async function handler(req, res) {
           (timeLimit || '2 minutes')
         );
         userMsg = "Coach my video response.";
-        maxTok = 900;
+        maxTok = 1200;
       } else if (mode === "adaptive") {
         systemPrompt = buildAdaptiveFollowUpPrompt(
           (previousQuestion || '').slice(0,300),
@@ -911,11 +911,11 @@ export default async function handler(req, res) {
           : "";
         systemPrompt = `You are an expert cover letter writer. Write a compelling, human-sounding cover letter that directly connects the candidate's specific achievements to the role's requirements. Never use generic templates. Rules: open with a specific hook (never "I am applying for"), connect top 2-3 requirements to quantified achievements, show genuine company knowledge, close with a confident CTA. 3-4 paragraphs, under 350 words. Sound human, not corporate.${intelSnippet}`;
         userMsg = cleanMessage;
-        maxTok = 700;
+        maxTok = 1200;
       } else if (mode === "linkedin") {
         systemPrompt = `You are a LinkedIn profile optimization expert. Generate optimized LinkedIn profile sections that help candidates get found by recruiters searching for the role. Return ONLY valid JSON with no markdown: {"headline":"optimized headline under 220 chars","about":"compelling About section 250-300 words with \\n paragraph breaks, under 2600 total characters","skills":"comma-separated top 10 skills aligned to the job description"}`;
         userMsg = cleanMessage;
-        maxTok = 700;
+        maxTok = 1400;
       } else if (mode === "mockanswer") {
         systemPrompt = buildMockAnswerPrompt(
           (previousQuestion || '').slice(0, 400),
@@ -923,15 +923,15 @@ export default async function handler(req, res) {
           cleanSector, cleanRole
         );
         userMsg = "Evaluate the candidate's answer and return the JSON.";
-        maxTok = 800;
+        maxTok = 1200;
       } else if (mode === "company") {
         systemPrompt = buildCompanyResearchPrompt(cleanCompany, cleanRole);
         userMsg = "Return the company research JSON.";
-        maxTok = 600;
+        maxTok = 800;
       } else if (mode === "gapentry") {
         systemPrompt = buildGapEntryPrompt(cleanRole, cleanSector, cleanJobDesc, cleanResume);
         userMsg = "Generate the gap-bridging resume entry JSON.";
-        maxTok = 900;
+        maxTok = 1400;
       }
 
       // Prompt caching on free-mode system prompts (reduces cost ~80% on repeated calls)
@@ -970,7 +970,7 @@ export default async function handler(req, res) {
     try {
       const stream = anthropic.messages.stream({
         model: "claude-sonnet-4-20250514",
-        max_tokens: 1024,
+        max_tokens: 2048,
         system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
         messages: [{ role: "user", content: cleanMessage }],
       });
@@ -999,7 +999,7 @@ export default async function handler(req, res) {
   try {
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
-      max_tokens: mode === "match" ? 4096 : 1024,
+      max_tokens: mode === "match" ? 8192 : 2048,
       system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
       messages: [{ role: "user", content: cleanMessage }],
     });
