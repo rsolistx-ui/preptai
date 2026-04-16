@@ -930,16 +930,22 @@ Return ONLY valid JSON (no markdown, no explanation):
       document.getElementById('stageLoading').style.display = 'none';
       document.getElementById('stageInput').style.display = 'block';
       setStep(1);
-      // Show a strong upgrade prompt instead of silent redirect
       document.getElementById('analyzeBtn').disabled = true;
-      document.getElementById('analyzeBtn').textContent = 'Monthly limit reached';
+      document.getElementById('analyzeBtn').textContent = 'Analysis used for this month';
       document.getElementById('freeUseBanner').innerHTML = `
-        <div style="font-size:15px;font-weight:700;margin-bottom:8px;color:#e6c668">You've used your 1 free analysis this month.</div>
-        <div style="font-size:13px;margin-bottom:12px;color:#ccc9e0">Pro users run unlimited analyses against every job they apply for.</div>
-        <a href="https://buy.stripe.com/bJe4gAdlkddX92gfLycbC00" style="display:inline-block;padding:10px 24px;background:#d4a847;color:#07070e;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none">Start Pro $12/mo →</a>
-        <div style="font-size:11px;color:#8a87a0;margin-top:8px">7-day free trial · Cancel anytime</div>`;
-      document.getElementById('freeUseBanner').style.background = 'rgba(200,168,75,0.1)';
-      document.getElementById('freeUseBanner').style.borderColor = 'rgba(200,168,75,0.35)';
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 0">
+          <div style="font-size:22px">🎯</div>
+          <div style="font-size:16px;font-weight:800;color:#e6c668;letter-spacing:-0.3px">You've used your free analysis for this month</div>
+          <div style="font-size:13px;color:#ccc9e0;line-height:1.65;max-width:420px;text-align:center">
+            Glad PREPT is helping your job search. Pro members run unlimited analyses — every job, every version of their resume, all month long.
+          </div>
+          <a href="https://buy.stripe.com/bJe4gAdlkddX92gfLycbC00"
+             style="display:inline-block;margin-top:4px;padding:12px 32px;background:linear-gradient(135deg,#c8a84b,#e6c668);color:#07070e;border-radius:9px;font-family:'Outfit',sans-serif;font-weight:800;font-size:15px;text-decoration:none;letter-spacing:-0.2px;box-shadow:0 4px 20px rgba(200,168,75,0.3)">
+            Upgrade to Pro — $12/mo →
+          </a>
+          <div style="font-size:11px;color:#6b6882">7-day free trial &middot; Cancel anytime &middot; Instant access</div>
+        </div>`;
+      document.getElementById('freeUseBanner').style.cssText = 'padding:22px 24px;background:rgba(200,168,75,0.08);border:1px solid rgba(200,168,75,0.3);border-radius:14px;font-size:13px;color:#e6c668;text-align:center;width:100%;max-width:600px';
       return;
     }
 
