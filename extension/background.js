@@ -1,6 +1,6 @@
 // PREPT AI — Background Service Worker v2
 
-const PREPT_URL = 'https://preptai.app';
+const PREPT_URL = 'https://preptai.co';
 
 // ── Install: set up context menus ──────────────────────────────────────────
 

@@ -1,6 +1,6 @@
 // PREPT AI Side Panel
 
-const PREPT_URL = 'https://preptai.app';
+const PREPT_URL = 'https://preptai.co';
 
 function encodeJob(data) {
   try { return btoa(unescape(encodeURIComponent(JSON.stringify(data)))); }

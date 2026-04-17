@@ -5,7 +5,7 @@
   if (window.__preptAIv2) return;
   window.__preptAIv2 = true;
 
-  const PREPT_URL = 'https://preptai.app';
+  const PREPT_URL = 'https://preptai.co';
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -348,7 +348,7 @@
             ⚡ Side Panel
           </button>
         </div>
-        <div class="prept-footer-note">preptai.app</div>
+        <div class="prept-footer-note">preptai.co</div>
       </div>
     `;
 
