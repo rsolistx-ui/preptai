@@ -1326,10 +1326,14 @@ function renderRewrite(r) {
 
 function hlKeywords(text,r) {
   const miss = (r.keywordsMissing||[]).concat(r.keywordsCritical||[]);
+  const light = document.documentElement.classList.contains('light');
+  const style = light
+    ? 'background:#e07b00;color:#ffffff;font-weight:700;border-radius:3px;padding:0 4px;text-transform:capitalize'
+    : 'background:rgba(200,168,75,0.22);color:#e6c668;font-weight:700;border-radius:3px;padding:0 3px;text-transform:capitalize';
   let out = text;
   miss.forEach(k => {
     const re = new RegExp('('+k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
-    out = out.replace(re,'<span class="kw-hi">$1</span>');
+    out = out.replace(re,`<span class="kw-hi" style="${style}">$1</span>`);
   });
   return out;
 }
