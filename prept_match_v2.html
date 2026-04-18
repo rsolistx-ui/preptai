@@ -1660,6 +1660,9 @@ async function buildGapEntry() {
     if (!jsonMatch) throw new Error('No JSON in response');
     const entry = JSON.parse(jsonMatch[0]);
     if (!entry.company || !entry.suggestedTitle || !Array.isArray(entry.bullets)) throw new Error('Incomplete entry returned');
+    // Enforce exactly 3 bullets — pad with placeholder if AI returned fewer
+    while (entry.bullets.length < 3) entry.bullets.push('Edit this bullet to describe a specific accomplishment using keywords from the job description.');
+    entry.bullets = entry.bullets.slice(0, 3);
     window._gapEntryData = entry;
     renderGapEntryEditor(entry);
   } catch(e) {

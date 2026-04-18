@@ -757,6 +757,27 @@ United Way Worldwide, American Red Cross, Habitat for Humanity, Teach For Americ
 MEDIA & ENTERTAINMENT:
 Netflix (contract), Warner Bros. Discovery, Disney Streaming, Viacom CBS, Hearst, Condé Nast, Dotdash Meredith
 
+HOSPITALITY & FOOD SERVICE:
+Marriott International, Hilton Worldwide, Hyatt Hotels Corporation, InterContinental Hotels Group (IHG), Wyndham Hotels, Darden Restaurants, Aramark, Compass Group, Delaware North, Sodexo
+
+RETAIL & E-COMMERCE:
+Amazon, Walmart, Target, Best Buy, Chewy, Wayfair, Shopify (merchant services), Dollar General, Home Depot, Lowe's
+
+MANUFACTURING & SUPPLY CHAIN:
+General Electric (GE), Honeywell, Caterpillar, 3M, Siemens, Bosch, Parker Hannifin, Emerson Electric, Rockwell Automation, Flex Ltd
+
+INSURANCE:
+Allstate, State Farm, Progressive, Marsh & McLennan, Aon, Willis Towers Watson, Gallagher, Aflac, Lincoln Financial Group, Sun Life Financial
+
+ENERGY & UTILITIES:
+ExxonMobil, Chevron, Duke Energy, NextEra Energy, Halliburton, Schlumberger (SLB), Baker Hughes, Dominion Energy, Constellation Energy
+
+FOOD & AGRICULTURE:
+Tyson Foods, Cargill, Archer-Daniels-Midland (ADM), Sysco, US Foods, Land O'Lakes, Bunge Limited, Corteva Agriscience
+
+TRANSPORTATION & AUTOMOTIVE:
+Ford Motor Company, General Motors, Toyota (TMNA), Tesla (contract), Rivian, Carvana, Penske Truck Leasing, Werner Enterprises
+
 RULES:
 - Company MUST be from the list above or another widely recognized, easily verifiable organization
 - Choose the company whose industry and known work type best fits the candidate's background AND the skills gap
