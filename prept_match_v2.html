@@ -1863,19 +1863,53 @@ function _doInsert(mode, entryText, resumeTA, feedback) {
     const current = resumeTA.value;
     const lines   = current.split('\n');
 
-    // Better heuristic: prefer lines with pipe separator (Company | Title) or
-    // Mixed-case lines that are NOT all-uppercase section headers and not bullet/date lines
-    const candidates = lines
-      .map((line, idx) => ({ line: line.trim(), idx }))
-      .filter(({ line }) =>
-        line.length > 8 && line.length < 120 &&
-        !line.startsWith('•') && !line.startsWith('-') && !line.startsWith('*') &&
-        !/^\d/.test(line) &&                        // not starting with digit (dates)
-        line !== line.toUpperCase() &&              // exclude ALL-CAPS section headers
-        /[A-Z]/.test(line[0]) &&                   // starts with capital
-        !/^(summary|experience|education|skills|certifications?|projects?|awards?|languages?|references?|work\s+history|professional\s+exp)/i.test(line) // not a known section header
-      )
-      .slice(0, 10);
+    // Score each line — high scores = job header lines, low scores = noise
+    const scored = lines.map((line, idx) => {
+      const t = line.trim();
+      let score = 0;
+      if (t.length < 10 || t.length > 140) return { line: t, idx, score: -99 };
+      if (t.startsWith('•') || t.startsWith('-') || t.startsWith('*')) return { line: t, idx, score: -99 };
+      if (t === t.toUpperCase() && t.length > 3) return { line: t, idx, score: -99 }; // ALL-CAPS section header
+      if (!/[A-Z]/.test(t[0])) return { line: t, idx, score: -99 };
+      if (/^(summary|experience|education|skills|certifications?|projects?|awards?|languages?|references?|work\s+history|professional\s+exp)/i.test(t)) return { line: t, idx, score: -99 };
+
+      // Strong positive: contains a date pattern → almost certainly a job header
+      if (/\b(0?[1-9]|1[0-2])\/\d{4}/.test(t)) score += 10;         // MM/YYYY
+      if (/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b.*\d{4}/i.test(t)) score += 10;
+      if (/\bPresent\b/i.test(t)) score += 5;
+      if (/\b(19|20)\d{2}\s*[-–]\s*(19|20)\d{2}/i.test(t)) score += 8; // YYYY-YYYY
+
+      // Positive: pipe separator = Company | Title format
+      if (t.includes('|')) score += 6;
+
+      // Positive: mid-line bullet = Company • Location • Date format
+      if (/\S\s*•\s*\S/.test(t) && !t.startsWith('•')) score += 4;
+
+      // Negative: contact info
+      if (/@/.test(t)) score -= 10;
+      if (/\b\d{3}[-.\s]\d{3,4}[-.\s]\d{4}\b/.test(t)) score -= 10; // phone
+      if (/https?:\/\/|linkedin\.com|github\.com/i.test(t)) score -= 10;
+
+      // Negative: education lines
+      if (/\b(university|college|b\.a\.|b\.s\.|m\.s\.|m\.b\.a\.|ph\.d\.|a\.a\.|a\.a\.s\.|bachelor|master|associate|gpa|expected\s+may|expected\s+\d{4})/i.test(t)) score -= 8;
+
+      // Negative: certification/award lines (no location or date pattern, single credential)
+      if (/\b(certified|certification|certificate|ICC|credential|license|level\s+[IVX]+)\b/i.test(t) && score < 5) score -= 5;
+
+      // Negative: very short = probably a name or standalone degree title
+      if (t.length < 20) score -= 4;
+
+      // Negative: pure summary/objective sentence (long, no company signals)
+      if (t.length > 90 && !/[•|]/.test(t) && !/\d{4}/.test(t)) score -= 6;
+
+      return { line: t, idx, score };
+    });
+
+    const candidates = scored
+      .filter(c => c.score >= 8)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 6)
+      .sort((a, b) => a.idx - b.idx); // restore original order after scoring
 
     if (candidates.length === 0) {
       _showGeFeedback(feedback, false, 'Could not detect existing entries. Use "Add to resume" instead.');
