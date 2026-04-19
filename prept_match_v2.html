@@ -1637,14 +1637,14 @@ async function buildGapEntry() {
   btn.disabled = true;
   btn.textContent = '⏳ Generating entry...';
   panel.style.display = 'block';
-  panel.innerHTML = `<div style="padding:16px;text-align:center;color:var(--tx3);font-size:13px">Analyzing gaps and sourcing a matching resume entry...</div>`;
+  panel.innerHTML = `<div style="padding:16px;text-align:center;color:var(--tx3);font-size:13px">Analyzing gaps and sourcing matching resume entries...</div>`;
 
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        message: 'Generate gap-bridging resume entry.',
+        message: 'Generate gap-bridging resume entries.',
         mode: 'gapentry',
         role: document.getElementById('matchCompanyInput')?.value?.trim() || '',
         jobDescription: document.getElementById('jobText')?.value?.trim() || '',
@@ -1654,23 +1654,235 @@ async function buildGapEntry() {
     });
     if (!res.ok) throw new Error('API error ' + res.status);
     const d = await res.json();
-    // Robustly extract JSON — handles preamble text or markdown fences
     const raw = (d.answer || '').replace(/```json|```/g, '');
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON in response');
-    const entry = JSON.parse(jsonMatch[0]);
-    if (!entry.company || !entry.suggestedTitle || !Array.isArray(entry.bullets)) throw new Error('Incomplete entry returned');
-    // Enforce exactly 3 bullets — pad with placeholder if AI returned fewer
-    while (entry.bullets.length < 3) entry.bullets.push('Edit this bullet to describe a specific accomplishment using keywords from the job description.');
-    entry.bullets = entry.bullets.slice(0, 3);
-    window._gapEntryData = entry;
-    renderGapEntryEditor(entry);
+    // Try array first, fall back to single object for backwards compatibility
+    const arrMatch  = raw.match(/\[[\s\S]*\]/);
+    const objMatch  = raw.match(/\{[\s\S]*\}/);
+    let entries = [];
+    if (arrMatch) {
+      const parsed = JSON.parse(arrMatch[0]);
+      entries = Array.isArray(parsed) ? parsed : [parsed];
+    } else if (objMatch) {
+      entries = [JSON.parse(objMatch[0])];
+    } else {
+      throw new Error('No JSON in response');
+    }
+    // Validate and normalise each entry — always exactly 3 bullets
+    entries = entries
+      .filter(e => e.company && e.suggestedTitle && Array.isArray(e.bullets))
+      .map(e => {
+        while (e.bullets.length < 3) e.bullets.push('Edit this bullet to describe a specific accomplishment using keywords from the job description.');
+        e.bullets = e.bullets.slice(0, 3);
+        return e;
+      });
+    if (entries.length === 0) throw new Error('No valid entries returned');
+    window._gapEntries = entries;
+    renderGapEntryOptions(entries);
   } catch(e) {
-    panel.innerHTML = `<div style="color:var(--re);font-size:13px;padding:12px">⚠ Could not generate entry — ${e.message}. Please try again.</div>`;
+    panel.innerHTML = `<div style="color:var(--re);font-size:13px;padding:12px">⚠ Could not generate entries — ${e.message}. Please try again.</div>`;
   } finally {
     btn.disabled = false;
     btn.textContent = '✦ Suggest a resume entry →';
   }
+}
+
+function renderGapEntryOptions(entries) {
+  const panel = document.getElementById('gapEntryPanel');
+  if (!panel) return;
+  panel.innerHTML = `
+    <div style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:800;color:#a498ff;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px">✦ ${entries.length} Resume Entry Options</div>
+      <div style="font-size:11px;color:var(--tx3)">Each is from a real, verifiable employer. Edit fields to match your actual experience, then add or replace.</div>
+    </div>
+    ${entries.map((entry, i) => `
+      <div id="gap-option-${i}" style="background:var(--s2);border:1px solid rgba(123,109,244,0.2);border-radius:14px;padding:20px;margin-bottom:14px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:14px;font-weight:800;color:var(--tx)">${escH(entry.company)}</div>
+            <div style="font-size:12px;color:var(--tx3);margin-top:2px">${escH(entry.companyType || '')} &nbsp;·&nbsp; ${escH(entry.suggestedTitle)} &nbsp;·&nbsp; ${escH(entry.employmentType || '')}</div>
+          </div>
+          <div style="font-size:11px;color:var(--tx3);white-space:nowrap">${escH(entry.suggestedStartMonth||'')} ${escH(entry.suggestedStartYear||'')} – ${escH(entry.suggestedEndMonth||'')} ${escH(entry.suggestedEndYear||'')}</div>
+        </div>
+        <ul style="margin:0 0 10px 0;padding-left:18px;list-style:disc">
+          ${entry.bullets.map(b => `<li style="font-size:13px;color:var(--tx2);line-height:1.6;margin-bottom:4px">${escH(b)}</li>`).join('')}
+        </ul>
+        ${entry.whyThisEntry ? `<div style="font-size:11px;color:#38d9c0;margin-bottom:12px;padding:6px 10px;background:rgba(56,217,192,0.06);border:1px solid rgba(56,217,192,0.15);border-radius:6px">${escH(entry.whyThisEntry)}</div>` : ''}
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="openGapEntryEditor(${i},'append')" style="flex:1;min-width:140px;padding:9px 12px;background:linear-gradient(135deg,#45de7a,#38d9c0);border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;color:#06060d;cursor:pointer">+ Add to my resume</button>
+          <button onclick="openGapEntryEditor(${i},'replace')" style="flex:1;min-width:140px;padding:9px 12px;background:rgba(123,109,244,0.12);border:1px solid rgba(123,109,244,0.3);border-radius:8px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;color:#a498ff;cursor:pointer">↕ Replace an existing entry</button>
+        </div>
+        <div id="gap-editor-${i}" style="display:none;margin-top:12px"></div>
+      </div>
+    `).join('')}
+    <div style="text-align:center;margin-top:4px">
+      <button onclick="buildGapEntry()" style="padding:7px 16px;background:rgba(123,109,244,0.08);border:1px solid rgba(123,109,244,0.2);border-radius:20px;color:#a498ff;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;cursor:pointer">🔄 Generate 3 new options</button>
+    </div>
+  `;
+}
+
+function openGapEntryEditor(idx, mode) {
+  const entry   = (window._gapEntries || [])[idx];
+  const editorDiv = document.getElementById(`gap-editor-${idx}`);
+  if (!entry || !editorDiv) return;
+
+  const months  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const years   = Array.from({length:12},(_,i)=>(new Date().getFullYear()-i).toString());
+  const monthOpts = months.map(m=>`<option value="${m}">${m}</option>`).join('');
+  const yearOpts  = years.map(y=>`<option value="${y}">${y}</option>`).join('');
+
+  editorDiv.style.display = 'block';
+  editorDiv.innerHTML = `
+    <div style="background:var(--s3);border:1px solid rgba(123,109,244,0.15);border-radius:10px;padding:16px">
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:12px;padding:6px 10px;background:rgba(245,165,42,0.07);border:1px solid rgba(245,165,42,0.18);border-radius:6px">
+        ⚠ Edit all fields to match your actual experience before using.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div>
+          <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--tx3);display:block;margin-bottom:3px">Company</label>
+          <input id="ge${idx}_company" value="${escH(entry.company||'')}" style="width:100%;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:13px;padding:7px 9px;border-radius:6px;outline:none;box-sizing:border-box"/>
+        </div>
+        <div>
+          <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--tx3);display:block;margin-bottom:3px">Title</label>
+          <input id="ge${idx}_title" value="${escH(entry.suggestedTitle||'')}" style="width:100%;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:13px;padding:7px 9px;border-radius:6px;outline:none;box-sizing:border-box"/>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr) auto;gap:6px;align-items:end;margin-bottom:10px">
+        <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--tx3);display:block;margin-bottom:3px">Start</label>
+          <select id="ge${idx}_sMonth" style="width:100%;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:12px;padding:7px 4px;border-radius:6px;outline:none">${monthOpts}</select></div>
+        <div style="padding-top:20px"><select id="ge${idx}_sYear" style="width:100%;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:12px;padding:7px 4px;border-radius:6px;outline:none">${yearOpts}</select></div>
+        <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--tx3);display:block;margin-bottom:3px">End</label>
+          <select id="ge${idx}_eMonth" style="width:100%;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:12px;padding:7px 4px;border-radius:6px;outline:none">${monthOpts}</select></div>
+        <div style="padding-top:20px"><select id="ge${idx}_eYear" style="width:100%;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:12px;padding:7px 4px;border-radius:6px;outline:none"><option value="Present">Present</option>${yearOpts}</select></div>
+        <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--tx3);display:block;margin-bottom:3px">Type</label>
+          <select id="ge${idx}_type" style="width:100%;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:12px;padding:7px 4px;border-radius:6px;outline:none"><option>Full-time</option><option>Contract</option><option>Freelance</option><option>Volunteer</option><option>Internship</option></select></div>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--tx3);display:block;margin-bottom:6px">Bullet Points</label>
+        ${entry.bullets.map((b,bi)=>`
+          <div style="display:flex;gap:6px;margin-bottom:6px">
+            <span style="color:#a498ff;font-weight:700;margin-top:8px;flex-shrink:0">•</span>
+            <textarea id="ge${idx}_b${bi}" style="flex:1;background:var(--inp-bg,#111120);border:1px solid var(--inp-border,rgba(255,255,255,0.09));color:var(--tx);font-family:'Outfit',sans-serif;font-size:13px;padding:7px 9px;border-radius:6px;outline:none;resize:vertical;min-height:48px;line-height:1.5">${escH(b)}</textarea>
+          </div>`).join('')}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="applyGapEntry(${idx},'${mode}')" style="flex:1;min-width:140px;padding:9px 12px;background:${mode==='append'?'linear-gradient(135deg,#45de7a,#38d9c0)':'rgba(123,109,244,0.12)'};border:${mode==='append'?'none':'1px solid rgba(123,109,244,0.3)'};border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:${mode==='append'?'#06060d':'#a498ff'};cursor:pointer">${mode==='append'?'✓ Confirm & add to resume':'✓ Confirm & replace entry'}</button>
+        <button onclick="document.getElementById('gap-editor-${idx}').style.display='none'" style="padding:9px 14px;background:transparent;border:1px solid var(--b1);border-radius:8px;color:var(--tx3);font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer">Cancel</button>
+      </div>
+      <div id="ge${idx}_replaceList" style="display:none;margin-top:10px"></div>
+      <div id="ge${idx}_feedback" style="display:none;margin-top:8px;padding:9px 12px;border-radius:7px;font-size:13px;font-weight:600"></div>
+    </div>
+  `;
+  // Pre-select dates
+  const sm = document.getElementById(`ge${idx}_sMonth`); if (sm && entry.suggestedStartMonth) sm.value = entry.suggestedStartMonth;
+  const sy = document.getElementById(`ge${idx}_sYear`);  if (sy && entry.suggestedStartYear)  sy.value = entry.suggestedStartYear;
+  const em = document.getElementById(`ge${idx}_eMonth`); if (em && entry.suggestedEndMonth)   em.value = entry.suggestedEndMonth;
+  const ey = document.getElementById(`ge${idx}_eYear`);  if (ey && entry.suggestedEndYear)    ey.value = entry.suggestedEndYear;
+  const ty = document.getElementById(`ge${idx}_type`);   if (ty && entry.employmentType)      ty.value = entry.employmentType;
+}
+
+function applyGapEntry(idx, mode) {
+  const entry   = (window._gapEntries || [])[idx];
+  if (!entry) return;
+  const company = document.getElementById(`ge${idx}_company`)?.value?.trim() || '';
+  const title   = document.getElementById(`ge${idx}_title`)?.value?.trim() || '';
+  const type    = document.getElementById(`ge${idx}_type`)?.value || '';
+  const sMonth  = document.getElementById(`ge${idx}_sMonth`)?.value || '';
+  const sYear   = document.getElementById(`ge${idx}_sYear`)?.value || '';
+  const eMonth  = document.getElementById(`ge${idx}_eMonth`)?.value || '';
+  const eYear   = document.getElementById(`ge${idx}_eYear`)?.value || '';
+  const bullets = [0,1,2].map(bi => (document.getElementById(`ge${idx}_b${bi}`)?.value?.trim() || '').replace(/^[•\-\*]\s*/,'')).filter(Boolean);
+  const feedback = document.getElementById(`ge${idx}_feedback`);
+
+  if (!company) { showToast('Enter a company name'); return; }
+  if (!title)   { showToast('Enter a job title'); return; }
+
+  const dateRange = (sMonth && sYear) ? `${sMonth} ${sYear} – ${eMonth||''} ${eYear||'Present'}`.trim() : '';
+  const entryText = `\n${company} | ${title}${type ? ' | '+type : ''}\n${dateRange}\n${bullets.map(b=>'• '+b).join('\n')}\n`;
+
+  const resumeTA = document.getElementById('resumeText');
+  if (!resumeTA) return;
+  saveResumeVersion('Before gap insert ' + new Date().toLocaleTimeString());
+
+  if (mode === 'append') {
+    const lines = resumeTA.value.split('\n');
+    let eduIdx = -1;
+    for (let i = 0; i < lines.length; i++) {
+      if (/^\s*(education|academic|university|college|certifications?)\s*:?\s*$/i.test(lines[i])) { eduIdx = i; break; }
+    }
+    if (eduIdx > 0) {
+      lines.splice(eduIdx, 0, ...('\n'+entryText.trim()).split('\n'));
+      resumeTA.value = lines.join('\n');
+    } else {
+      resumeTA.value = resumeTA.value.trimEnd() + '\n' + entryText;
+    }
+    updateCC('resumeText','rcc');
+    if (feedback) { feedback.style.display='block'; feedback.style.background='rgba(69,222,122,0.08)'; feedback.style.border='1px solid rgba(69,222,122,0.2)'; feedback.style.color='#45de7a'; feedback.textContent='✓ Added to resume — review above, then re-run analysis.'; }
+    showToast('Entry added — version auto-saved');
+  } else {
+    // Show replaceable job lines
+    const replaceList = document.getElementById(`ge${idx}_replaceList`);
+    if (!replaceList) return;
+    const lines = resumeTA.value.split('\n');
+    const scored = lines.map((line,li) => {
+      const t = line.trim(); let score = 0;
+      if (t.length < 10 || t.length > 140) return {line:t,li,score:-99};
+      if (t.startsWith('•')||t.startsWith('-')||t.startsWith('*')) return {line:t,li,score:-99};
+      if (t===t.toUpperCase()&&t.length>3) return {line:t,li,score:-99};
+      if (!/[A-Z]/.test(t[0])) return {line:t,li,score:-99};
+      if (/^(summary|experience|education|skills|certifications?|projects?|awards?|languages?|references?|work\s+history)/i.test(t)) return {line:t,li,score:-99};
+      if (/\b(0?[1-9]|1[0-2])\/\d{4}/.test(t)) score+=10;
+      if (/\bPresent\b/i.test(t)) score+=5;
+      if (/\b(19|20)\d{2}\s*[-–]\s*(19|20)\d{2}/.test(t)) score+=8;
+      if (t.includes('|')) score+=6;
+      if (/\S\s*•\s*\S/.test(t)&&!t.startsWith('•')) score+=4;
+      if (/@/.test(t)||/\b\d{3}[-.\s]\d{3,4}[-.\s]\d{4}\b/.test(t)) score-=10;
+      if (/\b(university|college|b\.a\.|b\.s\.|m\.s\.|m\.b\.a\.|ph\.d\.|a\.a\.|bachelor|master|expected\s+may|expected\s+\d{4})/i.test(t)) score-=8;
+      if (t.length<20) score-=4;
+      return {line:t,li,score};
+    });
+    const cands = scored.filter(c=>c.score>=8).sort((a,b)=>b.score-a.score).slice(0,6).sort((a,b)=>a.li-b.li);
+    if (cands.length===0) { if(feedback){feedback.style.display='block';feedback.style.background='rgba(239,95,95,0.07)';feedback.style.border='1px solid rgba(239,95,95,0.2)';feedback.style.color='#ef5f5f';feedback.textContent='Could not detect job entries. Use "Add to resume" instead.';} return; }
+    replaceList.style.display='block';
+    replaceList.innerHTML = `<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--tx3);margin-bottom:6px">Select entry to replace:</div>`
+      + cands.map(c=>`<button onclick="doApplyReplace(${idx},${c.li})" style="display:block;width:100%;text-align:left;margin-bottom:4px;padding:8px 10px;background:var(--s3);border:1px solid var(--b1);border-radius:6px;color:var(--tx2);font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer" onmouseover="this.style.borderColor='rgba(123,109,244,0.4)'" onmouseout="this.style.borderColor=''">${escH(c.line)}</button>`).join('');
+  }
+}
+
+function doApplyReplace(idx, lineIdx) {
+  const entry   = (window._gapEntries || [])[idx];
+  if (!entry) return;
+  const company = document.getElementById(`ge${idx}_company`)?.value?.trim() || '';
+  const title   = document.getElementById(`ge${idx}_title`)?.value?.trim() || '';
+  const type    = document.getElementById(`ge${idx}_type`)?.value || '';
+  const sMonth  = document.getElementById(`ge${idx}_sMonth`)?.value || '';
+  const sYear   = document.getElementById(`ge${idx}_sYear`)?.value || '';
+  const eMonth  = document.getElementById(`ge${idx}_eMonth`)?.value || '';
+  const eYear   = document.getElementById(`ge${idx}_eYear`)?.value || '';
+  const bullets = [0,1,2].map(bi=>(document.getElementById(`ge${idx}_b${bi}`)?.value?.trim()||'').replace(/^[•\-\*]\s*/,'')).filter(Boolean);
+  const feedback = document.getElementById(`ge${idx}_feedback`);
+  const resumeTA = document.getElementById('resumeText');
+  if (!resumeTA) return;
+
+  const dateRange = (sMonth&&sYear)?`${sMonth} ${sYear} – ${eMonth||''} ${eYear||'Present'}`.trim():'';
+  const newBlock  = `${company} | ${title}${type?' | '+type:''}\n${dateRange}\n${bullets.map(b=>'• '+b).join('\n')}`;
+
+  const lines = resumeTA.value.split('\n');
+  // Find the block end (next job header or section header)
+  let endIdx = lineIdx + 1;
+  while (endIdx < lines.length) {
+    const t = lines[endIdx].trim();
+    if (t.length === 0 && endIdx > lineIdx + 2) break;
+    const isNextHeader = /^(EDUCATION|SKILLS|CERTIFICATIONS?|PROJECTS?|AWARDS?|REFERENCES?)/i.test(t);
+    const isNextJob = /\b(0?[1-9]|1[0-2])\/\d{4}/.test(t) || (/\S\s*•\s*\S/.test(t) && !t.startsWith('•') && endIdx !== lineIdx) || (t.includes('|') && endIdx !== lineIdx);
+    if (isNextHeader || (isNextJob && endIdx > lineIdx + 1)) break;
+    endIdx++;
+  }
+  lines.splice(lineIdx, endIdx - lineIdx, ...newBlock.split('\n'));
+  resumeTA.value = lines.join('\n');
+  updateCC('resumeText','rcc');
+  document.getElementById(`ge${idx}_replaceList`).style.display = 'none';
+  if (feedback) { feedback.style.display='block'; feedback.style.background='rgba(69,222,122,0.08)'; feedback.style.border='1px solid rgba(69,222,122,0.2)'; feedback.style.color='#45de7a'; feedback.textContent='✓ Entry replaced — review above, then re-run analysis.'; }
+  showToast('Entry replaced — version auto-saved');
 }
 
 function renderGapEntryEditor(entry) {

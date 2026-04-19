@@ -779,32 +779,60 @@ TRANSPORTATION & AUTOMOTIVE:
 Ford Motor Company, General Motors, Toyota (TMNA), Tesla (contract), Rivian, Carvana, Penske Truck Leasing, Werner Enterprises
 
 RULES:
-- Company MUST be from the list above or another widely recognized, easily verifiable organization
-- Choose the company whose industry and known work type best fits the candidate's background AND the skills gap
-- Employment type should be Contract or Freelance for AI training companies; match typical hiring model for others
-- Title must be realistic for a transitioning candidate — not overqualified
-- All 3 bullets must use exact keywords from the job description
-- Be honest: this is a template the user will adapt with their real dates/details
+- Every company MUST be from the list above or another widely recognized, easily verifiable organization (Fortune 500, major staffing platform, national nonprofit, etc.)
+- Pick 3 DIFFERENT companies from 3 different tiers/types so the candidate has real options
+- Each company's industry and known work type must fit the candidate's background AND the skill gap
+- Employment type should match how that company actually hires (Contract/Freelance for platforms; Full-time for corporations)
+- Each entry must have EXACTLY 3 bullets using exact keywords from the job description
+- Vary the title slightly across entries to show realistic options (e.g. Coordinator vs Specialist vs Analyst)
+- Be honest: these are templates the user will adapt with real dates/details
 
-Return ONLY this exact JSON (no markdown, no preamble):
-{
-  "company": "<real verifiable company name from the list above>",
-  "companyType": "<e.g. AI training platform | Fortune 100 retailer | federal agency>",
-  "suggestedTitle": "<realistic job title>",
-  "employmentType": "<Full-time | Contract | Freelance | Volunteer | Internship>",
-  "suggestedStartMonth": "<e.g. Jan>",
-  "suggestedStartYear": "<e.g. 2022>",
-  "suggestedEndMonth": "<e.g. Dec>",
-  "suggestedEndYear": "<e.g. 2023>",
-  "bullets": [
-    "<bullet 1 — specific, quantified, uses exact JD keywords>",
-    "<bullet 2>",
-    "<bullet 3>"
-  ],
-  "skillsBridged": ["<skill 1>", "<skill 2>", "<skill 3>"],
-  "whyThisEntry": "<1 sentence: which gaps this bridges AND why this specific company was chosen over alternatives>",
-  "disclaimer": "This is a template based on your target role. Edit the company, title, and dates to reflect your actual experience."
-}`;
+Return ONLY this exact JSON array (no markdown, no preamble, no extra keys):
+[
+  {
+    "company": "<real verifiable company — best fit overall>",
+    "companyType": "<e.g. AI training platform | Fortune 100 retailer | federal agency>",
+    "suggestedTitle": "<realistic job title>",
+    "employmentType": "<Full-time | Contract | Freelance | Volunteer | Internship>",
+    "suggestedStartMonth": "<e.g. Jan>",
+    "suggestedStartYear": "<e.g. 2022>",
+    "suggestedEndMonth": "<e.g. Dec>",
+    "suggestedEndYear": "<e.g. 2023>",
+    "bullets": [
+      "<bullet 1 — specific, quantified, uses exact JD keywords>",
+      "<bullet 2 — different angle, still keyword-rich>",
+      "<bullet 3 — quantified outcome>"
+    ],
+    "skillsBridged": ["<skill 1>", "<skill 2>", "<skill 3>"],
+    "whyThisEntry": "<1 sentence: which gaps this bridges and why this company was chosen>"
+  },
+  {
+    "company": "<second real company — different type/tier from first>",
+    "companyType": "<type>",
+    "suggestedTitle": "<slightly different title variation>",
+    "employmentType": "<type>",
+    "suggestedStartMonth": "<e.g. Mar>",
+    "suggestedStartYear": "<e.g. 2023>",
+    "suggestedEndMonth": "<e.g. Present>",
+    "suggestedEndYear": "<e.g. Present>",
+    "bullets": ["<bullet 1>", "<bullet 2>", "<bullet 3>"],
+    "skillsBridged": ["<skill 1>", "<skill 2>", "<skill 3>"],
+    "whyThisEntry": "<1 sentence>"
+  },
+  {
+    "company": "<third real company — different tier again>",
+    "companyType": "<type>",
+    "suggestedTitle": "<another realistic title>",
+    "employmentType": "<type>",
+    "suggestedStartMonth": "<e.g. Jun>",
+    "suggestedStartYear": "<e.g. 2021>",
+    "suggestedEndMonth": "<e.g. Feb>",
+    "suggestedEndYear": "<e.g. 2023>",
+    "bullets": ["<bullet 1>", "<bullet 2>", "<bullet 3>"],
+    "skillsBridged": ["<skill 1>", "<skill 2>", "<skill 3>"],
+    "whyThisEntry": "<1 sentence>"
+  }
+]`;
 }
 
 // ── MOCK ANSWER EVALUATOR (adaptive STAR analysis + model answer + next Q) ────
